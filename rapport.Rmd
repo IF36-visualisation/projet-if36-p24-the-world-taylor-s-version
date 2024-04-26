@@ -1,0 +1,114 @@
+## Introduction ✨
+L'équipe de projet `The World (Taylor's Version)` est composée de quatres personnes : Marielle CHARON, Kevin HERNANDEZ, Anouchka NEVEU et Amadou ISSAKA AMADOU. Le but de ce projet est de répondre à plusieurs questions sur le thème de la musique et plus précisement sur les platformes Spotify et Youtube grace à la visualisation de données. Le projet sera développé sous R.
+
+## Données 💡
+Le dataset utilisé (`Datasetfinal.csv`) est un merge de deux datasets : [Spotify and Youtube](https://www.kaggle.com/datasets/salvatorerastelli/spotify-and-youtube) et [Spotify songs](https://www.kaggle.com/datasets/sujaykapadnis/spotify-songs). Le merge final pèse 6.55 MB et est sous format CSV. Il contient 3668 éléments. La clé qui a servi au merge est l'ID de la musique sur Spotify.
+
+Les deux jeux de données contiennent des données datant de **2023** collectées depuis les API officielles de YouTube et Spotify. On a, notamment, les 10 musiques les plus populaires d'une variété d'artistes.
+
+> Il possède à l'heure actuelle 50 features, avant cleaning de celles pertinentes.
+<br>
+On regroupe les features sous ces catégories :
+<br><br>
+
+| Catégorie | Features associées |
+| --- | --- |
+| Informations générales | artist, track_name, album, album_type, duration_ms, channel, description, track_album_release_date, ... |
+| Scores musicaux | danceability, energy, key, loudness, acousticness, instrumentalness, liveness, valence, tempo |
+| Popularité | views, likes, comments, stream, track_popularity |
+| Variables supplémentaires | uri (Spotify ID), url_spotify, url_youtube, licensed, ... |
+
+> Les variables supplémentaires n'expliquent pas la donnée pour l'analyse, mais sont utilisées pour structurer le dataset.
+<br>
+Les features se répartissent selon plusieurs types : nominales (nom de l'artiste/musique/album, ...), discrètes (tonalité) ou continues (scores musicaux).
+
+
+```{r, echo=FALSE, include=FALSE}
+# DATASET CLEANING AND PRACTICAL CODE
+
+
+# library import
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(forcats)
+library(devtools)
+library(palettetown)
+
+# import dataset
+data <- read_csv("data/datasetfinal.csv")
+data <- data.frame(data)
+
+# clean dataset
+data <- data %>%
+  select(-c(playlist_name, playlist_id, Url_spotify, Url_youtube, Title, Duration_ms, Danceability, Energy, Key, Loudness, Speechiness, Acousticness, Instrumentalness, Liveness, Valence, Tempo, track_name, track_artist)) %>%   # remove useless features
+  na.omit() %>%   # remove incomplete rows
+  distinct(Uri, .keep_all = TRUE)   # remove duplicated rows
+  
+
+# add relevant features to dataset
+data$total_streams <- data$Stream + data$Views
+data <- arrange(data, desc(total_streams))
+```
+
+***
+
+On répond aux premières questions :
+
+> Quelles sont les chansons les plus populaires sur YouTube et Spotify ?
+
+> Y a-t'il une corrélation entre les genres de musique et leur clé musicale ?
+
+Dans le graphique ci-dessous, on voit les 15 chansons les plus écoutées (streams cumulés sur YouTube et Spotify). On voit rapidement que *Ed Sheeran* domine le classement puisqu'il cumule 3 des 15 chansons les plus écoutées.
+⚠️ **CELA NE REPRESENTE PAS LES ARTISTES AVEC LE PLUS DE STREAMS TOTAUX CUMULES**
+
+On décide d'analyser ces musiques en fonction de leur clé musicale. Dans le dataset, chaque clé est associée à un entier selon [cet encodage](https://en.wikipedia.org/wiki/Pitch_class#:~:text=%5Bedit%5D-,Pitch%20class,-Pitch%0Aclass).
+Globalement, plus une clé est élevée, plus une chanson a tendance à être aïgue. A l'inverse, une chanson à clé basse sera plus grave.
+
+Sur l'ensemble du dataset, la clé moyenne est :
+
+```{r, echo=FALSE}
+mean(data$key)
+```
+soit un *Fa*.
+
+
+```{r, echo=FALSE}
+# PLOT 1 : Top X songs from total streams (S and YT) by artist and key
+
+
+# stacked bar plot
+ggplot(head(data, 15), aes(fill = key, y = total_streams, x = fct_reorder(Artist, total_streams, sum))) + 
+    geom_bar(position = "stack", stat = "identity") +
+    geom_text(aes(label = Track), position = position_stack(vjust = 0.5), color = "white", size = 2) +
+    ggtitle("Top 15 songs from total streams (S and YT) by artist and key") +
+    ylab("Total streams (S and YT)") +
+    xlab("Artist") +
+    
+    # turning the graph sideways and switching from scientific notation to regular notation for numbers
+    coord_flip() +
+    scale_y_continuous(labels = scales::comma)
+```
+
+Si on s'intéresse uniquement aux 15 premières chansons, la clé moyenne devient alors :
+
+```{r, echo=FALSE}
+mean(head(data,15)$key)
+```
+plus proche d'un *Mi* (soit une clé inférieure).
+
+```{r, echo=FALSE}
+ggplot(data, aes(x = fct_reorder(playlist_genre, -key, mean), y = key, fill=fct_reorder(playlist_genre, key, mean))) +
+    geom_boxplot() +
+    scale_fill_poke(pokemon="Meganium", spread=14) +
+    labs(fill = "Genre", x = "Genre", y = "Clé") +
+    ggtitle("Whisket Plot of Key by Genre for all musics in dataset") +
+    coord_flip()
+```
+
+
+
+En regardant les genres de toutes les musiques du dataset, on voit que le genre avec la clé médiane la plus élevée est le rap. Les genres les moins variés en terme de de clés musicales sont le rock et l'EDM (Electronic Dance Music).
+
+⚠️ Il est à noter que la classification du genre des musiques dans le dataset peut parfois être hasardeuse.
+

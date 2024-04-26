@@ -45,7 +45,10 @@ Vous pouvez également analyser les résultats seuls en ouvrant les fichiers `.h
 
 ## Données 💡
 Le dataset utilisé (`Datasetfinal.csv`) est un merge de deux datasets : [Spotify and Youtube](https://www.kaggle.com/datasets/salvatorerastelli/spotify-and-youtube) et [Spotify songs](https://www.kaggle.com/datasets/sujaykapadnis/spotify-songs). Le merge final pèse 6.55 MB et est sous format CSV. Il contient 3668 éléments. La clé qui a servi au merge est l'ID de la musique sur Spotify.
-> Il possède à l'heure actuelle 50 features, avant cleaning de celles pertinentes.
+
+Les deux jeux de données contiennent des données datant de **2023** collectées depuis les API officielles de YouTube et Spotify. On a, notamment, les 10 musiques les plus populaires d'une variété d'artistes.
+
+> Le dataset complet possède 50 features, avant cleaning de celles pertinentes. Après cleaning, on a 33 features.
 <br>
 On regroupe les features sous ces catégories :
 <br><br>
