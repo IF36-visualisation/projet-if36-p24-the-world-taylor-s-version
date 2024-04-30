@@ -26,6 +26,8 @@ Les features se répartissent selon plusieurs types : nominales (nom de l'artist
 ```{r, echo=FALSE, include=FALSE}
 # DATASET CLEANING AND PRACTICAL CODE
 
+# Install packages if necessary
+# install.packages("cowplot")
 
 # library import
 library(ggplot2)
@@ -34,6 +36,8 @@ library(dplyr)
 library(forcats)
 library(devtools)
 library(palettetown)
+library(cowplot)
+library(stats)
 
 # import dataset
 data <- read_csv("data/datasetfinal.csv")
@@ -111,4 +115,144 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -key, mean), y = key, fill=fct_
 En regardant les genres de toutes les musiques du dataset, on voit que le genre avec la clé médiane la plus élevée est le rap. Les genres les moins variés en terme de de clés musicales sont le rock et l'EDM (Electronic Dance Music).
 
 ⚠️ Il est à noter que la classification du genre des musiques dans le dataset peut parfois être hasardeuse.
+
+
+> ##### *Quelle est la durée moyenne des chansons par artiste ? Est-ce qu'il y a des artistes qui ont des chansons plus longues ou plus courtes que la moyenne ?*
+
+L'idée à travers ces différentes interrogations est de pouvoir situer les artistes en fonction de la durée moyenne de leurs chansons. Pour cela, nous allons dans un premier temps voir la ***distribution*** de la durée moyenne de chansons à l'aide d'un ***histogramme***, et ensuite faire la ***comparaison*** entre ces artistes. Avant cela, il est important de noter que :
+
+
+```{r duration_stats, echo=FALSE,}
+Convert_en_m <- function(ms){
+  minute <- ms/60000
+  intPart <- floor(minute)
+  decimalPat <- minute - intPart
+  decimalPat <- floor(decimalPat * 60)
+  return(paste(c(intPart,"mn",decimalPat,"s"),collapse = ''))
+}
+
+mean_in_s <- round(mean(data$duration_ms)/1000,2)
+max_in_s <- round(max(data$duration_ms)/1000,2)
+min_in_s <- round(min(data$duration_ms)/1000,2)
+  
+paste(c("la durée moyenne d'un song est de: ", mean_in_s, "s soit ",Convert_en_m(mean(data$duration_ms))),collapse = '')
+paste(c("Le song le plus long dure: ", max_in_s, "s soit ",Convert_en_m(max(data$duration_ms))),collapse = '')
+paste(c("Le plus court dure: ", min_in_s , "s soit ",Convert_en_m(min(data$duration_ms))),collapse = '')
+
+```
+
+```{r Histogramme, echo=FALSE, fig.align='center'}
+
+dfArtisDuration_mean <- data %>% group_by(Artist) %>% summarise (duration_mean = mean(duration_ms)) %>% mutate(duration_mean_in_sec = duration_mean/1000)
+
+dfArtisDuration_sup_mean <- dfArtisDuration_mean %>% filter(duration_mean_in_sec > mean_in_s) %>% arrange(desc(duration_mean))
+
+dfArtisDuration_infEg_mean <- dfArtisDuration_mean %>% filter(duration_mean_in_sec <= mean_in_s) %>% arrange(duration_mean)
+
+
+ggplot(dfArtisDuration_mean, mapping = aes(x = duration_mean_in_sec))+
+   geom_histogram(mapping = aes(fill = ifelse(duration_mean_in_sec <= mean(duration_mean_in_sec),"Below average","Above average")), binwidth = 20) +
+   scale_fill_discrete(name ='Classification by average song duration')+
+   ggtitle("Distribution of song duration") +
+   xlab("Duration in secondes") +
+   ylab("Number of artists")
+
+```
+
+On constate à travers cet histogramme que toutes les chansons de notre dataset durent plus de 100s soit plus d'une 1mn40s et qu'il y en a qui vont jusqu'à plus de 400s soit plus de 6mn. Cependant malgré la faible domination des songs dans la moyenne générale de durée, un certain nombre d'artistes proposent une discographie de musiques plus longues.
+
+Si l'on pousse la curiosité encore plus loin, on peut faire le top 10 des artistes qui produisent en moyenne plus de longues ou au contraire plus de courtes musiques. Pour cela, nous, utiliserons un ***Bar_Chart*** pour faire la ***comparaison*** entre ces artistes.
+
+```{r Artist mean duration , echo=FALSE, fig.align='center', fig.height=6, fig.width=15}
+
+g1 <- ggplot(head(dfArtisDuration_sup_mean,10),mapping = aes(y = duration_mean_in_sec, x=Artist, fill = Artist )) +
+  geom_bar(position = "stack", stat = "identity") +
+  geom_hline(yintercept = mean_in_s) +
+  annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
+  geom_text(aes(label = round(duration_mean_in_sec,2), angle = 70), position = position_stack(vjust = 1.1)) +
+  theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
+  ggtitle("Top 10 artists with the longest songs (average)") +
+  ylab("Duration in secondes") 
+  
+ 
+g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mean_in_sec,x=Artist,fill = Artist)) +
+   geom_bar(position = "stack", stat = "identity") +
+   geom_hline(yintercept = mean_in_s) +
+   annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
+   geom_text(aes(label = round(duration_mean_in_sec,2), angle = 70), position = position_stack(vjust = 1.1)) +
+   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
+   ggtitle("Top 10 artists with the shortest songs (average)") +
+   ylab("Duration in secondes") 
+
+
+plot_grid(g1,g2)
+
+```
+
+
+```{r Artist mean duration 2, echo=FALSE, fig.align='center', fig.height=6, fig.width=15}
+
+# g1 <- ggplot(head(dfArtisDuration_sup_mean,10),mapping = aes(y = duration_mean_in_sec, x=Artist, fill = duration_mean_in_sec )) +
+#   scale_fill_continuous(name="Duration in seconde class")+
+#   geom_bar(position = "stack", stat = "identity") +
+#   geom_hline(yintercept = mean_in_s) +
+#   annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
+#   ggtitle("Top 10 artists with the longest songs (average)") +
+#   ylab("Duration in secondes") +
+#   xlab("Artists") +
+#   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+#   
+#  
+# g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mean_in_sec,x=Artist,fill = duration_mean_in_sec)) +
+#    scale_fill_continuous(name="Duration in seconde class")+
+#    geom_bar(position = "stack", stat = "identity") +
+#    geom_hline(yintercept = mean_in_s) +
+#    annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
+#    ggtitle("Top 10 artists with the shortest songs (average)") +
+#    ylab("Duration in secondes") +
+#    xlab("Artists")+ 
+#    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+# 
+# 
+# plot_grid(g1,g2)
+
+```
+
+
+Sur ces 2 graphiques, on peut voir que dans les deux tops 10, la moyenne des artistes se détache largement de la durée moyenne du dataset et que "*Bob Marley & The Wailers*" fait plus de longues chansons contrairement à "*Pouya*" qui a la moyenne la plus basse.
+
+⚠️ Il est important de relativisé, car il ne faut pas perdre de vue que nous sommes en présence d'un dataset qui ne contient pas toute la discographie de ces artistes.
+
+Avec ces constats, on est en droit de se demander si la durée des songs, n'a pas d'impact sur la popularité de la musique.
+
+> ##### *Les chansons plus longues ont-elles une popularité différente ?*
+
+En tant que mélomane, on a tendance à croire que les chansons les plus longues sont moins populaires en raison de la tendance actuelle des artistes pour les musiques de courte durée. Afin d'affirmer ou d'infirmer cette théorie, nous allons à l'aide d'un ***Scatter Plot***, étudier la ***relation*** entre la durée et la popularité des différents songs du dataset.
+
+```{r duration & popularity, echo=FALSE, fig.align='center'}
+data %>% select(track_popularity, duration_ms) %>% 
+  ggplot( mapping = aes(y = track_popularity, x=duration_ms/1000 )) + 
+  geom_point() + 
+  geom_smooth()+
+  ggtitle("Duration & Popularity Scattter Plot") +
+  xlab("Duration in secondes") +
+  ylab("Track popularity in %")
+
+```
+
+À travers ce nuage de points, on observe :
+
+-   une forte concentration de songs ayant une durée comprise entre 200 et 300 secondes et avec une popularité oscillant entre 60 et 80 %.
+-   les songs les plus, mais aussi les moins populaires se situent dans la même plage de durée,
+-   les musiques les plus courtes et les plus longues partagent la même plage de popularité.
+-   la dispersion du nuage de points par rapport à la droite de régression.
+
+Tout ceci nous pousse à douter de l'existence d'une réelle relation entre la popularité et la durée d'une musique. Dans le doute, on se réfère au coefficient de corrélation qui est de :
+
+```{r Coefficient, echo=FALSE,}
+coeff<-cor(x = data$duration_ms, y =data$track_popularity)
+coeff
+```
+
+
 
