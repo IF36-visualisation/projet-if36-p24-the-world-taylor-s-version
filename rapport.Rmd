@@ -53,11 +53,20 @@ data <- data %>%
 # add relevant features to dataset
 data$total_streams <- data$Stream + data$Views
 data <- arrange(data, desc(total_streams))
+#Définition des couleurs pour les genres de musique (graphiques cohérents)
+
+palette_couleurs_unique <- c("rap" = "#4A79E7",
+                             "pop" = "#F28E2B",
+                             "r&b" = "#E15759",
+                             "edm" = "#76B7E2",
+                             "latin" = "#59A13F",
+                             "rock" = "#9999EF")
 ```
+
 
 ***
 
-On répond aux premières questions :
+## Réponses aux questions 🤔 
 
 > Quelles sont les chansons les plus populaires sur YouTube et Spotify ?
 
@@ -80,14 +89,13 @@ soit un *Fa*.
 ```{r, echo=FALSE}
 # PLOT 1 : Top X songs from total streams (S and YT) by artist and key
 
-
 # stacked bar plot
 ggplot(head(data, 15), aes(fill = key, y = total_streams, x = fct_reorder(Artist, total_streams, sum))) + 
     geom_bar(position = "stack", stat = "identity") +
     geom_text(aes(label = Track), position = position_stack(vjust = 0.5), color = "white", size = 2) +
-    ggtitle("Top 15 songs from total streams (S and YT) by artist and key") +
-    ylab("Total streams (S and YT)") +
-    xlab("Artist") +
+    ggtitle("Top 15 des musiques avec le Nombre total de streams (S and YT) par artistes et clé ") +
+    ylab("Nombre Total de streams (S and YT)") +
+    xlab("Artistes") +
     
     # turning the graph sideways and switching from scientific notation to regular notation for numbers
     coord_flip() +
@@ -102,12 +110,13 @@ mean(head(data,15)$key)
 plus proche d'un *Mi* (soit une clé inférieure).
 
 ```{r, echo=FALSE}
-ggplot(data, aes(x = fct_reorder(playlist_genre, -key, mean), y = key, fill=fct_reorder(playlist_genre, key, mean))) +
-    geom_boxplot() +
-    scale_fill_poke(pokemon="Meganium", spread=14) +
-    labs(fill = "Genre", x = "Genre", y = "Clé") +
-    ggtitle("Whisket Plot of Key by Genre for all musics in dataset") +
-    coord_flip()
+ggplot(data, aes(x = fct_reorder(playlist_genre, -key, mean), y = key, fill = playlist_genre)) +
+  geom_boxplot() +
+  scale_fill_manual(values = palette_couleurs_unique) +  
+  labs(fill = "Genre", x = "Genre", y = "Clé") +
+  ggtitle("Whisker Plot des clés par Genre pour toutes les musiques") +
+  coord_flip()
+
 ```
 
 
@@ -117,7 +126,10 @@ En regardant les genres de toutes les musiques du dataset, on voit que le genre 
 ⚠️ Il est à noter que la classification du genre des musiques dans le dataset peut parfois être hasardeuse.
 
 
-> ##### *Quelle est la durée moyenne des chansons par artiste ? Est-ce qu'il y a des artistes qui ont des chansons plus longues ou plus courtes que la moyenne ?*
+
+
+
+> Quelle est la durée moyenne des chansons par artiste ? Est-ce qu'il y a des artistes qui ont des chansons plus longues ou plus courtes que la moyenne ?
 
 L'idée à travers ces différentes interrogations est de pouvoir situer les artistes en fonction de la durée moyenne de leurs chansons. Pour cela, nous allons dans un premier temps voir la ***distribution*** de la durée moyenne de chansons à l'aide d'un ***histogramme***, et ensuite faire la ***comparaison*** entre ces artistes. Avant cela, il est important de noter que :
 
@@ -225,7 +237,7 @@ Sur ces 2 graphiques, on peut voir que dans les deux tops 10, la moyenne des art
 
 Avec ces constats, on est en droit de se demander si la durée des songs, n'a pas d'impact sur la popularité de la musique.
 
-> ##### *Les chansons plus longues ont-elles une popularité différente ?*
+> Les chansons plus longues ont-elles une popularité différente ?
 
 En tant que mélomane, on a tendance à croire que les chansons les plus longues sont moins populaires en raison de la tendance actuelle des artistes pour les musiques de courte durée. Afin d'affirmer ou d'infirmer cette théorie, nous allons à l'aide d'un ***Scatter Plot***, étudier la ***relation*** entre la durée et la popularité des différents songs du dataset.
 
@@ -257,4 +269,79 @@ coeff
 Le résultat négatif traduit une corrélation négative, c'est-à-dire que les deux variables évoluent en direction opposée, ce qui conforte nos soupçons sur l'impopularité des longues chansons. Cette relation demeure très faible et nous pensons que la taille de notre jeu de données ne nous permet pas de s'assurer aisément de cette relation.
 
 
+
+
+
+> Quel genre de musique est le plus populaire sur Spotify/Youtube ?
+
+Dans le graphique ci-dessous, nous pouvons voir le classement des genres de musiques par rapport au nombre moyen de stream (sur spotify et youtube) que fait une musique de ce genre, ce qui donne donc un classement de popularité. On choisi cette méthode de *"nombre moyen de stream que fait une musique"* pour catégoriser la popularité des genres car nous ne pouvons pas simplement afficher un nombre total de Stream pour chaque genre sachant qu'il n'y a pas un nombre égal de musique par genre. Il faut diviser le nombre total de stream par genre par le nombre de musique de ce genre, ce qui donne un nombre moyen de stream pour chaque genre.
+
+
+```{r, echo=FALSE}
+
+# Calculer la moyenne du nombre de streams (par musique) pour chaque genre de musique
+total_streams_genre <- data %>%
+  group_by(playlist_genre) %>%
+  summarise(total_streams = sum(total_streams),
+            total_tracks = n()) %>%
+  mutate(mean_streams_per_track = ceiling(total_streams / total_tracks))  # Arrondir à l'entier supérieur
+
+# Créer le graphique en utilisant la moyenne du nombre de streams pour chaque genre
+ggplot(total_streams_genre, aes(x = reorder(playlist_genre, mean_streams_per_track, .desc=TRUE), y = mean_streams_per_track, fill = playlist_genre)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = mean_streams_per_track), position = position_stack(vjust = 0.5), color = "black", size = 3) +  # Ajouter le nombre de streams moyen par genre
+  scale_fill_manual(values = palette_couleurs_unique) +  
+  labs(x = "Genre de musique", y = "Nombre de stream moyen", fill = "Genre") +
+  ggtitle("Nombre de streams moyen (d'une musique) pour chaque genre de musique") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma)
+
+```
+
+La premiere chose que l'on remarque c'est que l'**EDM** (Electronic Dance Music) est en tête de classement suivie par la **Pop** et les musiques **Latin(o)**. Pourtant si on reprend les 15 musiques les plus populaire et qu'on les classe par genre, on se rend compte que le **Latin(o)** domine le classement, suivit par la **Pop** puis enfin l'**EDM**. Comme le montre le graphique ci-dessous.
+
+
+```{r, echo=FALSE}
+# Créer le graphique à barres empilées par genre
+ggplot(head(data, 15), aes(fill = Track, y = total_streams, x = fct_reorder(playlist_genre, total_streams, .desc=TRUE))) +
+  geom_bar(position = "stack", stat = "identity") +
+  ggtitle("Top 15 des musiques (par nombre total de streams) par genre") +
+  labs(y = "Total streams (S and YT)", x = "Genre", fill = "Top 15 Musiques") +
+  scale_y_continuous(labels = scales::comma)
+
+```
+
+Pour résumer ces deux graphiques, dans ce dataset, le genre de musique le plus populaire est l'EMD (sur un nombre moyen d'écoute) mais parmi le top 15 des musiques, le genre de musique le plus populaire est le Latin(o).
+Alors, comment expliquer cette différence de résulat ? 
+
+Grace au diagramme Whisker Plot [(définition)](https://cdn2.boryl.fr/2020/11/3d5689a5-box-plot-boi%CC%82tes-a%CC%80-moustaches--300x223.png) ci-dessous, on voit que le classement par la médiane nous donne encore une information différente en mettant la Pop en première place. C'est normal et même plus juste car la **moyenne est sensible aux "outliers"**, tandis que la médiane est plus robuste à leur présence. Si un petit nombre de valeurs extrêmes sont significativement plus élevées que les autres valeurs de l'ensemble de données, elles peuvent tirer la moyenne vers le haut, tandis que la médiane reste relativement stable. De plus l'impact sur la moyenne peut varier en fonction de la quantité de données et de la répartition des valeurs extrêmes.
+
+```{r, echo=FALSE}
+# Créer le graphique de type "Whisker Plot" par genre avec la moyenne
+ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), y = total_streams, fill = playlist_genre)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "black", position = position_dodge(width = 0.75)) +  # Ajouter la moyenne
+  scale_fill_manual(values = palette_couleurs_unique) +  
+  labs(fill = "Genre", x = "Genre", y = "Total Streams par musique") +
+  ggtitle("Whisker Plot répartition du Nombre total de Streams (par musique) par Genre") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma)
+
+```
+
+Comme on peut le voir dans le tableau ci dessous, le genre EDM contient beaucoup moins de musique par rapport à la Pop ou au Latin(o), donc le petit nombre de musiques extrêmes (en nombre de stream) à une grande influence sur la moyenne de stream ce qui a tendance à fausser notre classement initial.
+
+```{r, echo=FALSE}
+
+tableau_genre_musiques <- data %>%
+  count(playlist_genre) %>%
+  rename(Genre = playlist_genre, Nombre_de_musiques = n)
+
+tableau_genre_musiques
+```
+
+Que faut-il conclure pour cette question ? Le classement par la médiane est plus pertinent, ce qui place donc la **Pop comme le genre le plus populaire**.
+Pour le genre Latin(o), les musiques font généralement moins de streams que l'EDM et la Pop sauf quelques cas particuliers qui apparaissent dans notre top 15 des musiques les plus populaire.
+
+⚠️ Il est à noter cette étude est basée sur les musiques présente dans le dataset et pas sur toute les musiques existantes.
 
