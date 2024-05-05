@@ -345,3 +345,27 @@ Pour le genre Latin(o), les musiques font généralement moins de streams que l'
 
 ⚠️ Il est à noter cette étude est basée sur les musiques présente dans le dataset et pas sur toute les musiques existantes.
 
+
+
+> Est ce que l'energy d'une musique joue un rôle important dans sa popularité ?
+
+C'est une question légitime, existe t'il une corrélation entre l'energie d'une musique ainsi que sa popularité (total du nombre de streams sur les 2 plateformes). 
+Nous analysons cette question avec 2 graphiques utilisant les mêmes données. Le 1er graphique est un scatter plot avec une moyenne mobile du nombre de streams. Le 2nd est le même graphique sans le nuage de points pour mieux analyser la moyenne mobile qui semble constante sur le 1er.
+
+```{r}
+ggplot(data, aes(x = energy, y = total_streams)) + geom_point() +
+  geom_smooth() +
+  labs(x = "Energy", y = "Total Streams", title = "Correlation between Energy and Total Streams") +
+  theme_minimal()
+```
+
+On peut remarquer que la densité d'énergie avec le plus de musiques se situe entre 0.4 et 1.
+
+```{r}
+ggplot(data, aes(x = energy, y = total_streams)) +
+  geom_smooth() +
+  labs(x = "Energy", y = "Total Streams", title = "Correlation between Energy and Total Streams") +
+  theme_minimal()
+```
+
+L'évolution de la moyenne mobile est nettement plus analysable sans le nuage de points. On peut remarquer que la moyenne du nombre de streams augmente entre 0 et 0.75 d'energy pour ensuite diminuer entre 0.75 et 1. Il y a une croissance de près de 25% entre 0.25 et 0.75 d'energy et une chute de 33% du nombre de streams entre 0.75 et 1. On peut donc conclure qu'il y a une certaine corrélation entre l'energy et le nombre de streams.
