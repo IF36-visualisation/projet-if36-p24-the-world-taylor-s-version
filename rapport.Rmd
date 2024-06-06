@@ -1,3 +1,11 @@
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
 ## Introduction ✨
 L'équipe de projet `The World (Taylor's Version)` est composée de quatres personnes : Marielle CHARON, Kevin HERNANDEZ, Anouchka NEVEU et Amadou ISSAKA AMADOU. Le but de ce projet est de répondre à plusieurs questions sur le thème de la musique et plus précisement sur les platformes Spotify et Youtube grace à la visualisation de données. Le projet sera développé sous R.
 
@@ -38,6 +46,10 @@ library(devtools)
 library(palettetown)
 library(cowplot)
 library(stats)
+library(plotly)
+library(ggcorrplot)
+library(GGally)
+
 
 # import dataset
 data <- read_csv("data/datasetfinal.csv")
@@ -144,9 +156,9 @@ mean_in_s <- round(mean(data$duration_ms)/1000,2)
 max_in_s <- round(max(data$duration_ms)/1000,2)
 min_in_s <- round(min(data$duration_ms)/1000,2)
   
-paste(c("la durée moyenne d'un song est de: ", mean_in_s, "s soit ",Convert_en_m(mean(data$duration_ms))),collapse = '')
-paste(c("Le song le plus long dure: ", max_in_s, "s soit ",Convert_en_m(max(data$duration_ms))),collapse = '')
-paste(c("Le plus court dure: ", min_in_s , "s soit ",Convert_en_m(min(data$duration_ms))),collapse = '')
+paste(c("la durée moyenne d'une musique est de: ", mean_in_s, "s soit ",Convert_en_m(mean(data$duration_ms))),collapse = '')
+paste(c("La musique la plus longue dure: ", max_in_s, "s soit ",Convert_en_m(max(data$duration_ms))),collapse = '')
+paste(c("La musique la plus courte dure: ", min_in_s , "s soit ",Convert_en_m(min(data$duration_ms))),collapse = '')
 
 ```
 
@@ -160,11 +172,11 @@ dfArtisDuration_infEg_mean <- dfArtisDuration_mean %>% filter(duration_mean_in_s
 
 
 ggplot(dfArtisDuration_mean, mapping = aes(x = duration_mean_in_sec))+
-   geom_histogram(mapping = aes(fill = ifelse(duration_mean_in_sec <= mean(duration_mean_in_sec),"Below average","Above average")), binwidth = 20) +
-   scale_fill_discrete(name ='Classification by average song duration')+
-   ggtitle("Distribution of song duration") +
-   xlab("Duration in secondes") +
-   ylab("Number of artists")
+   geom_histogram(mapping = aes(fill = ifelse(duration_mean_in_sec <= mean(duration_mean_in_sec),"En dessous de la moyenne","Au dessus de la moyenne")), binwidth = 5) +
+   scale_fill_discrete(name ='Classification par la durée moyenne des musiques')+
+   ggtitle("Distribution de la durée des musiques") +
+   xlab("Durée en secondes") +
+   ylab("Nombre d'artistes")
 
 ```
 
@@ -180,8 +192,8 @@ g1 <- ggplot(head(dfArtisDuration_sup_mean,10),mapping = aes(y = duration_mean_i
   annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
   geom_text(aes(label = round(duration_mean_in_sec,2), angle = 70), position = position_stack(vjust = 1.1)) +
   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
-  ggtitle("Top 10 artists with the longest songs (average)") +
-  ylab("Duration in secondes") 
+  ggtitle("Top 10 des artistes avec les plus longues musiques (moyenne)") +
+  ylab("Durée en secondes") 
   
  
 g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mean_in_sec,x=Artist,fill = Artist)) +
@@ -190,8 +202,8 @@ g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mea
    annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
    geom_text(aes(label = round(duration_mean_in_sec,2), angle = 70), position = position_stack(vjust = 1.1)) +
    theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
-   ggtitle("Top 10 artists with the shortest songs (average)") +
-   ylab("Duration in secondes") 
+   ggtitle("Top 10 des artistes avec les plus courte musiques (moyenne)") +
+   ylab("Durée en secondes") 
 
 
 plot_grid(g1,g2)
@@ -243,9 +255,9 @@ data %>% select(track_popularity, duration_ms) %>%
   ggplot( mapping = aes(y = track_popularity, x=duration_ms/1000 )) + 
   geom_point() + 
   geom_smooth()+
-  ggtitle("Duration & Popularity Scattter Plot") +
-  xlab("Duration in secondes") +
-  ylab("Track popularity in %")
+  ggtitle("Scattter Plot : Durée & Popularité") +
+  xlab("Durée en secondes") +
+  ylab("Popularité des Tracks en pourcentage")
 
 ```
 
@@ -320,7 +332,7 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), 
   stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "black", position = position_dodge(width = 0.75)) +  # Ajouter la moyenne
   scale_fill_manual(values = palette_couleurs_unique) +  
   labs(fill = "Genre", x = "Genre", y = "Total Streams par musique") +
-  ggtitle("Whisker Plot répartition du Nombre total de Streams (par musique) par Genre") +
+  ggtitle("Whisker Plot : répartition du Nombre total de Streams (par musique) par Genre") +
   coord_flip() +
   scale_y_continuous(labels = scales::comma)
 
@@ -334,7 +346,7 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), 
   stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "black", position = position_dodge(width = 0.75)) +  # Ajouter la moyenne
   scale_fill_manual(values = palette_couleurs_unique) +  
   labs(fill = "Genre", x = "Genre", y = "Total Streams par musique") +
-  ggtitle("Violin Plot répartition du Nombre total de Streams (par musique) par Genre") +
+  ggtitle("Violin Plot :  répartition du Nombre total de Streams (par musique) par Genre") +
   scale_y_continuous(labels = scales::comma)
 
 ```
@@ -358,15 +370,15 @@ Pour le genre Latin(o), les musiques font généralement moins de streams que l'
 
 
 
-> Est ce que l'energy d'une musique joue un rôle important dans sa popularité ?
+> Est ce que l'energie d'une musique joue un rôle important dans sa popularité ?
 
 C'est une question légitime, existe t'il une corrélation entre l'energie d'une musique ainsi que sa popularité (total du nombre de streams sur les 2 plateformes). 
 Nous analysons cette question avec 2 graphiques utilisant les mêmes données. Le 1er graphique est un scatter plot avec une moyenne mobile du nombre de streams. Le 2nd est le même graphique sans le nuage de points pour mieux analyser la moyenne mobile qui semble constante sur le 1er.
-
+ 
 ```{r}
 ggplot(data, aes(x = energy, y = total_streams)) + geom_point() +
   geom_smooth() +
-  labs(x = "Energy", y = "Total Streams", title = "Correlation between Energy and Total Streams") +
+  labs(x = "Energie", y = "Total Streams", title = "Correlation entre Energie et Total Streams") +
   theme_minimal()
 ```
 
@@ -375,7 +387,7 @@ On peut remarquer que la densité d'énergie avec le plus de musiques se situe e
 ```{r}
 ggplot(data, aes(x = energy, y = total_streams)) +
   geom_smooth() +
-  labs(x = "Energy", y = "Total Streams", title = "Correlation between Energy and Total Streams") +
+  labs(x = "Energie", y = "Total Streams", title = "Correlation entre Energie et Total Streams") +
   theme_minimal()
 ```
 
@@ -410,3 +422,57 @@ ggplot(data_2000_2019, aes(x = track_album_release_year, y = total_streams, fill
 Globalement, on peut voir que les années 2010 ont connu une explosion des plateformes de streaming de musique commme Spotify ou Youtube, ce qui se traduit par un pic de streams sur la graphique.
 
 Par rapport aux genres, on voit que les musiques Rock ont connu un pic de streams dans les années 2000, avant de chuter drastiquement. Au contraire, dans la fin des années 2010, le genre Rap prend de plus en plus d'importance dans le monde de la musique. Le genre Latino a connu une très grosse évolution en 2017 et 2018, avec la sortie, entre autres, de **Despacito** de Luis Fonsi et Daddy Yankee ou **MIA** de Bad Bunny et Drake.
+
+> Est-ce que les musiques qui ont le plus de "Views" sur Youtube sont également celle qui ont le plus de "Stream" sur Spotify ? Dans la même idée, est-ce que les musiques qui ont le plus de "Views" sont également celle qui ont le plus de "Likes" et de "Comments" ?
+
+Pour cette question, le graphique dynamique est disponible dans l'application **Shiny** dédiée, dans l'onglet **Top 40 Musiques**. Vous pouvez sélectionner la variable afin d'afficher le graphique. Nous ferons cette analyse pour un top 15 des musiques, mais dans l'application vous pouvez également aller jusqu'au top 40 grâce au curseur.
+
+
+![ScreenShot Shiny Views et Streams](image/shiny_view_stream.png)
+
+
+
+Pour commencer, ce que nous pouvons remarquer de ces deux graphiques c'est que le top 15 de Youtube et le top 15 de Spotify n'est pas le même. Il est même très  éloigné, car la seule musique en commun est *Shape of You*. *Despacito*, qui a le plus de "Views" sur Youtube n'est même pas dans le top 40 Stream car il fait environ la moitié de "Streams" Spotify par rapport a *Shape of You*.
+
+Deux choses peuvent expliquer ce gros écart, soit les données n'ont pas été récupérées au même moment par les API quand le dataset a été crée (en sachant que ces données viennent du même dataset) et donc certaines musiques ont fait plus de vue entre temps ou alors elles étaient pas en "top popularité" à ce moment là et donc n'ont pas été séléctionnée par l'API. Soit, Youtube est une platforme gratuite et tout le monde ne paye pas un abonnement pour une platforme de musique, donc si une musique commence à devenir populaire il y a de grande chance qu'on l'écoute sur cette platforme à un moment donné. De plus tout le monde n'écoute pas sa musique sur Spotify car il existe d'autres applications payantes (exemple : Deezer), donc il peut également exister des types de profils par rapport aux platforme. 
+
+Dans tout les cas, les **algorithmes** pour les propositions de musiques ne sont **pas identiques** entre Spotify et Youtube, donc les musiques proposée ne sont pas identique et cela peut faire **changer** la popularité (et donc le nombre de views/streams) d'une musique d'une platforme à une autre.
+
+
+![ScreenShot Shiny Likes et Comments](image/shiny_like_comment.png)
+
+
+On remarque en revanche sur ces deux graphiques plusieurs musiques du top 15 en "Views" également présentes dans le top 15 "Likes" et "Comments", notamement *Despacito*, *Shape of you* ou *See you again*. Les classements ne sont pas excatement identique, mais on retrouve plusieurs musiques en commun donc il existe surement un **lien** entre le nombre de "views" et le nombre de "likes" / "comments". Nous allons le vérifier avec une matrice de corrélation.
+
+```{r}
+# Sélectionner uniquement les colonnes nécessaires
+data_selected <- data %>%
+  select(Views, Likes, Comments)
+
+# Créer le graphique de croisements deux à deux et la matrice de corrélation
+ggpairs(data_selected, 
+        upper = list(continuous = wrap("cor", size = 6, face = "bold", color = "#f00000")),
+        lower = list(continuous = wrap("smooth", alpha = 0.7, color = "#2ca02c")),
+        diag = list(continuous = wrap("barDiag", fill = "#1f77b4"))) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(size = 7),
+    axis.title = element_text(size = 10),
+    strip.background = element_rect(fill = "gray90"),
+    strip.text = element_text(size = 10, face = "bold")
+  ) +
+  labs(title = "Croisement deux à deux et matrice de corrélation pour Views, Likes et Comments")
+```
+
+Dans ce graphique de croisements deux à deux avec la matrice de corrélation, on confirme grâce aux coéffients, que nous avons une **correlation forte** entre les trois variables : Views, Likes et Comments. 
+
+> Est-ce qu'il existe des liens de corrélation entre certaines variables : danceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness, valence, tempo, total_streams ?
+Et, existe-t-il des liens entre certaines variables et le nombre de streams total ?
+
+De même pour cette question, le graphique dynamique est disponible dans l'application **Shiny** dédiée, dans l'onglet **Matrice de corrélation**. Cette matrice est clicable, c'est à dire que que si vous cliquez sur la case rouge entre energy et loudness, vous aurez le graphique correspondant à droite et le coeficient de corrélation en dessous.
+
+![ScreenShot correlation energy loudness](image/correlation1.png)
+La matrice de correlation nous indique qu'il y a une **correlation forte** (0,67) entre l'energie et le volume sonore (loudness), et entre l'energie et l'accoustique (0,53). Mais  également une **corrélation moyenne** entre l'accoustique et le volume sonore (0,38). Les autres corrélation sont plus faibles, et contrairement à nos suppositions, il n'y a pas de correlation notable entre le nombre total de streams (Youtube + Spotify) et certaines variables.
