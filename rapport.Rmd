@@ -116,10 +116,7 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -key, mean), y = key, fill = pl
   labs(fill = "Genre", x = "Genre", y = "Clé") +
   ggtitle("Whisker Plot des clés par Genre pour toutes les musiques") +
   coord_flip()
-
 ```
-
-
 
 En regardant les genres de toutes les musiques du dataset, on voit que le genre avec la clé médiane la plus élevée est le rap. Les genres les moins variés en terme de de clés musicales sont le rock et l'EDM (Electronic Dance Music).
 
@@ -328,6 +325,20 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), 
   scale_y_continuous(labels = scales::comma)
 
 ```
+En analysant le même graphique sous forme de Violin Plot, on observe plus aisément que les genres Rap, Rock et R&B ont beaucoup plus de musiques avec un faible nombre de streams, comparé aux genres EDM, Pop et Latin(o) qui ont une répartition plus équilibrée. 
+
+```{r, echo=FALSE}
+# Créer le graphique de type "Whisker Plot" par genre avec la moyenne
+ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), y = total_streams, fill = playlist_genre)) +
+  geom_violin() +
+  stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "black", position = position_dodge(width = 0.75)) +  # Ajouter la moyenne
+  scale_fill_manual(values = palette_couleurs_unique) +  
+  labs(fill = "Genre", x = "Genre", y = "Total Streams par musique") +
+  ggtitle("Violin Plot répartition du Nombre total de Streams (par musique) par Genre") +
+  scale_y_continuous(labels = scales::comma)
+
+```
+
 
 Comme on peut le voir dans le tableau ci dessous, le genre EDM contient beaucoup moins de musique par rapport à la Pop ou au Latin(o), donc le petit nombre de musiques extrêmes (en nombre de stream) à une grande influence sur la moyenne de stream ce qui a tendance à fausser notre classement initial.
 
@@ -369,3 +380,33 @@ ggplot(data, aes(x = energy, y = total_streams)) +
 ```
 
 L'évolution de la moyenne mobile est nettement plus analysable sans le nuage de points. On peut remarquer que la moyenne du nombre de streams augmente entre 0 et 0.75 d'energy pour ensuite diminuer entre 0.75 et 1. Il y a une croissance de près de 25% entre 0.25 et 0.75 d'energy et une chute de 33% du nombre de streams entre 0.75 et 1. On peut donc conclure qu'il y a une certaine corrélation entre l'energy et le nombre de streams.
+
+> Quelles années ont connu le plus de streams ?
+
+> Quelle est l'évolution de la répartition des genres de musique au fil des années ?
+
+Dans le graphique ci-dessous, on voit les streams totaux des musiques sorties sur la même année, selon leur genre. On s'intéresse seulement à la période 2000 2019 (le dataset ne comprenant qu'un faible échantillon de musiques en 2020).
+
+
+```{r}
+# Turn release date to years
+data$track_album_release_date <- as.Date(data$track_album_release_date)
+data$track_album_release_year <- as.numeric(format(data$track_album_release_date, "%Y"))
+
+data_2000_2019 <- data %>%
+  filter(track_album_release_year >= 2000 & track_album_release_year <= 2019) %>%
+  group_by(track_album_release_year, playlist_genre) %>%
+  summarise(total_streams = sum(total_streams))
+
+
+ggplot(data_2000_2019, aes(x = track_album_release_year, y = total_streams, fill = playlist_genre)) +
+  geom_area() +
+  ggtitle("Streams totaux des musiques sorties sur la même année, selon leur genre") +
+  ylab("Nombre Total de streams (S and YT)") +
+  xlab("Années") +
+  scale_y_continuous(labels = scales::comma)
+```
+
+Globalement, on peut voir que les années 2010 ont connu une explosion des plateformes de streaming de musique commme Spotify ou Youtube, ce qui se traduit par un pic de streams sur la graphique.
+
+Par rapport aux genres, on voit que les musiques Rock ont connu un pic de streams dans les années 2000, avant de chuter drastiquement. Au contraire, dans la fin des années 2010, le genre Rap prend de plus en plus d'importance dans le monde de la musique. Le genre Latino a connu une très grosse évolution en 2017 et 2018, avec la sortie, entre autres, de **Despacito** de Luis Fonsi et Daddy Yankee ou **MIA** de Bad Bunny et Drake.
