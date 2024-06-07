@@ -70,7 +70,7 @@ shinyServer(function(input, output) {
     } else if (input$selectVariable == "Comments") {
       "#FF8F00"
     } else if (input$selectVariable == "Stream") {
-      "#FFDB00"
+      "#0B4B00"
     } else {
       "black" # Couleur par défaut si la variable n'est pas reconnue
     }
