@@ -64,7 +64,27 @@ palette_couleurs_unique <- c("rap" = "#4A79E7",
 ```
 
 
-***
+#### Qualité des données 🎯
+
+Avant de se plonger dans l'anaylyse, on tient à noter les biais du dataset.
+
+```{r, echo=FALSE}
+# graph of distribution of the number of musics per genre, ordered by the number of musics
+ggplot(data, aes(fill = playlist_genre, x = reorder(playlist_genre, -table(playlist_genre)[playlist_genre]))) +
+  geom_bar() +
+  scale_fill_manual(values = palette_couleurs_unique) +
+  ggtitle("Distribution of the number of musics per genre") +
+  xlab("Genre") +
+  ylab("Number of musics")
+
+```
+
+
+On remarque tout de suite le biais du dataset, avec une surreprésentation des musiques **Rock** et une sous-représentation des musiques **EDM**. Cela sera à prendre en compte dans les analyses.
+
+De même, les données ont été prises de manière *arbitraire*, sans critères précis, en récupérant un jeu de musiques pour une liste d'artistes choisis. Il est donc possible que les musiques sélectionnées ne soient pas représentatives de la réalité. Il est important de garder cela en tête lors de l'analyse.
+
+
 
 ## Réponses aux questions 🤔 
 
@@ -89,8 +109,15 @@ soit un *Fa*.
 ```{r, echo=FALSE}
 # PLOT 1 : Top X songs from total streams (S and YT) by artist and key
 
-# stacked bar plot
-ggplot(head(data, 15), aes(fill = key, y = total_streams, x = fct_reorder(Artist, total_streams, sum))) + 
+# Convert 'key' to a factor
+data_factor <- data %>%
+  mutate(key = as.factor(key))
+
+# Generate a gradient of green colors
+green_colors <- colorRampPalette(c("#3de076", "#000000"))(length(unique(data$key)))
+
+# Create the bar plot with shades of green for the fill
+ggplot(head(data_factor, 15), aes(fill = key, y = total_streams, x = fct_reorder(Artist, total_streams, sum))) + 
     geom_bar(position = "stack", stat = "identity") +
     geom_text(aes(label = Track), position = position_stack(vjust = 0.5), color = "white", size = 2) +
     ggtitle("Top 15 des musiques avec le Nombre total de streams (S and YT) par artistes et clé ") +
@@ -99,7 +126,8 @@ ggplot(head(data, 15), aes(fill = key, y = total_streams, x = fct_reorder(Artist
     
     # turning the graph sideways and switching from scientific notation to regular notation for numbers
     coord_flip() +
-    scale_y_continuous(labels = scales::comma)
+    scale_y_continuous(labels = scales::comma) +
+    scale_fill_manual(values = green_colors)
 ```
 
 Si on s'intéresse uniquement aux 15 premières chansons, la clé moyenne devient alors :
@@ -159,12 +187,17 @@ dfArtisDuration_sup_mean <- dfArtisDuration_mean %>% filter(duration_mean_in_sec
 dfArtisDuration_infEg_mean <- dfArtisDuration_mean %>% filter(duration_mean_in_sec <= mean_in_s) %>% arrange(duration_mean)
 
 
-ggplot(dfArtisDuration_mean, mapping = aes(x = duration_mean_in_sec))+
-   geom_histogram(mapping = aes(fill = ifelse(duration_mean_in_sec <= mean(duration_mean_in_sec),"Below average","Above average")), binwidth = 20) +
-   scale_fill_discrete(name ='Classification by average song duration')+
-   ggtitle("Distribution of song duration") +
-   xlab("Duration in secondes") +
-   ylab("Number of artists")
+ggplot(dfArtisDuration_mean, mapping = aes(x = duration_mean_in_sec)) +
+  geom_histogram(mapping = aes(
+    fill = ifelse(duration_mean_in_sec <= mean(duration_mean_in_sec), "Below Average", "Above Average")
+  ), binwidth =5) +
+  scale_fill_manual(
+    name = 'Classification by average song duration',
+    values = c("Below Average" = "#191414", "Above Average" = "#1DB954")
+  ) +
+  ggtitle("Distribution of song duration") +
+  xlab("Duration in seconds") +
+  ylab("Number of artists")
 
 ```
 
@@ -174,58 +207,38 @@ Si l'on pousse la curiosité encore plus loin, on peut faire le top 10 des artis
 
 ```{r Artist mean duration , echo=FALSE, fig.align='center', fig.height=6, fig.width=15}
 
-g1 <- ggplot(head(dfArtisDuration_sup_mean,10),mapping = aes(y = duration_mean_in_sec, x=Artist, fill = Artist )) +
+# Get the maximum duration_mean_in_sec from both data frames and add a buffer
+max_duration <- max(max(dfArtisDuration_sup_mean$duration_mean_in_sec), max(dfArtisDuration_infEg_mean$duration_mean_in_sec))
+buffer <- 0.1 * max_duration  # 10% buffer
+max_duration <- max_duration + buffer
+
+# For the first plot
+g1 <- ggplot(head(dfArtisDuration_sup_mean, 10), aes(y = duration_mean_in_sec, x = Artist, fill = Artist)) +
   geom_bar(position = "stack", stat = "identity") +
   geom_hline(yintercept = mean_in_s) +
-  annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
-  geom_text(aes(label = round(duration_mean_in_sec,2), angle = 70), position = position_stack(vjust = 1.1)) +
+  annotate("text", x = -1, y = mean_in_s + 10, label = 'Mean', hjust = 'left') +
+  geom_text(aes(label = round(duration_mean_in_sec, 2), angle = 70), position = position_stack(vjust = 1.1)) +
   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
   ggtitle("Top 10 artists with the longest songs (average)") +
-  ylab("Duration in secondes") 
-  
- 
-g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mean_in_sec,x=Artist,fill = Artist)) +
-   geom_bar(position = "stack", stat = "identity") +
-   geom_hline(yintercept = mean_in_s) +
-   annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
-   geom_text(aes(label = round(duration_mean_in_sec,2), angle = 70), position = position_stack(vjust = 1.1)) +
-   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
-   ggtitle("Top 10 artists with the shortest songs (average)") +
-   ylab("Duration in secondes") 
+  ylab("Duration in seconds") +
+  ylim(0, max_duration)
 
+# For the second plot
+g2 <- ggplot(head(dfArtisDuration_infEg_mean, 10), aes(y = duration_mean_in_sec, x = Artist, fill = Artist)) +
+  geom_bar(position = "stack", stat = "identity") +
+  geom_hline(yintercept = mean_in_s) +
+  annotate("text", x = -1, y = mean_in_s + 10, label = 'Mean', hjust = 'left') +
+  geom_text(aes(label = round(duration_mean_in_sec, 2), angle = 70), position = position_stack(vjust = 1.1)) +
+  theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
+  ggtitle("Top 10 artists with the shortest songs (average)") +
+  ylab("Duration in seconds") +
+  ylim(0, max_duration)
 
-plot_grid(g1,g2)
-
-```
-
-
-```{r Artist mean duration 2, echo=FALSE, fig.align='center', fig.height=6, fig.width=15}
-
-# g1 <- ggplot(head(dfArtisDuration_sup_mean,10),mapping = aes(y = duration_mean_in_sec, x=Artist, fill = duration_mean_in_sec )) +
-#   scale_fill_continuous(name="Duration in seconde class")+
-#   geom_bar(position = "stack", stat = "identity") +
-#   geom_hline(yintercept = mean_in_s) +
-#   annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
-#   ggtitle("Top 10 artists with the longest songs (average)") +
-#   ylab("Duration in secondes") +
-#   xlab("Artists") +
-#   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
-#   
-#  
-# g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mean_in_sec,x=Artist,fill = duration_mean_in_sec)) +
-#    scale_fill_continuous(name="Duration in seconde class")+
-#    geom_bar(position = "stack", stat = "identity") +
-#    geom_hline(yintercept = mean_in_s) +
-#    annotate("text", x=-1, y = mean_in_s + 10, label='Mean', hjust = 'left' )+
-#    ggtitle("Top 10 artists with the shortest songs (average)") +
-#    ylab("Duration in secondes") +
-#    xlab("Artists")+ 
-#    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
-# 
-# 
-# plot_grid(g1,g2)
+# Plot the graphs side by side with the same y-axis scale
+plot_grid(g1, g2, ncol = 2)
 
 ```
+
 
 
 Sur ces 2 graphiques, on peut voir que dans les deux tops 10, la moyenne des artistes se détache largement de la durée moyenne du dataset et que "*Bob Marley & The Wailers*" fait plus de longues chansons contrairement à "*Pouya*" qui a la moyenne la plus basse.
@@ -264,8 +277,6 @@ coeff
 ```
 
 Le résultat négatif traduit une corrélation négative, c'est-à-dire que les deux variables évoluent en direction opposée, ce qui conforte nos soupçons sur l'impopularité des longues chansons. Cette relation demeure très faible et nous pensons que la taille de notre jeu de données ne nous permet pas de s'assurer aisément de cette relation.
-
-
 
 
 
@@ -388,7 +399,7 @@ L'évolution de la moyenne mobile est nettement plus analysable sans le nuage de
 Dans le graphique ci-dessous, on voit les streams totaux des musiques sorties sur la même année, selon leur genre. On s'intéresse seulement à la période 2000 2019 (le dataset ne comprenant qu'un faible échantillon de musiques en 2020).
 
 
-```{r}
+```{r echo=FALSE}
 # Turn release date to years
 data$track_album_release_date <- as.Date(data$track_album_release_date)
 data$track_album_release_year <- as.numeric(format(data$track_album_release_date, "%Y"))
@@ -399,12 +410,29 @@ data_2000_2019 <- data %>%
   summarise(total_streams = sum(total_streams))
 
 
-ggplot(data_2000_2019, aes(x = track_album_release_year, y = total_streams, fill = playlist_genre)) +
-  geom_area() +
+g1 <- ggplot(data_2000_2019, aes(x = track_album_release_year, y = total_streams, fill = playlist_genre)) +
+  geom_area(alpha=0.8 , size=0.5, colour="black") +
   ggtitle("Streams totaux des musiques sorties sur la même année, selon leur genre") +
   ylab("Nombre Total de streams (S and YT)") +
   xlab("Années") +
+  scale_fill_manual(values = palette_couleurs_unique) +
   scale_y_continuous(labels = scales::comma)
+
+data_2000_2019_perc <- data_2000_2019 %>%
+  group_by(track_album_release_year, playlist_genre) %>%
+  summarise(total_streams = sum(total_streams)) %>%
+  mutate(percentage = total_streams / sum(total_streams))
+
+g2 <- ggplot(data_2000_2019_perc, aes(x = track_album_release_year, y = percentage, fill = playlist_genre)) +
+  geom_area(alpha=0.8 , size=0.5, colour="black") +
+  ggtitle("Percentage of Total Streams by Genre, by Release Year") +
+  ylab("Percentage of Total Streams") +
+  xlab("Years") +
+  scale_fill_manual(values = palette_couleurs_unique) +
+  scale_y_continuous(labels = scales::percent)
+
+plot_grid(g1, g2, ncol = 1)
+
 ```
 
 Globalement, on peut voir que les années 2010 ont connu une explosion des plateformes de streaming de musique commme Spotify ou Youtube, ce qui se traduit par un pic de streams sur la graphique.
