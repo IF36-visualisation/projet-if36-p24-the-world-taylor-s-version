@@ -30,6 +30,26 @@ On regroupe les features sous ces catégories :
 <br>
 Les features se répartissent selon plusieurs types : nominales (nom de l'artiste/musique/album, ...), discrètes (tonalité) ou continues (scores musicaux).
 
+#### Features audio 🎵
+
+Les features audio sont des données extraites des musiques elles-mêmes par l'API Spotify. Elles sont calculées par des algorithmes de traitement du signal audio. Ces algorithmes ne sont pas publics, mais voici ce que Spotify dit de ces features :
+
+
+| Paramètre         | Intervalle | Description |
+|-------------------|------------|-------------|
+| danceability      | 0-1        | La danceability décrit à quel point une piste est adaptée à la danse en fonction de divers éléments musicaux (tempo, beats, régularité...). Plus la valeur est élevée, plus la piste est dansante |
+| energy            | 0-1        | L'énergie est une mesure qui représente une mesure perceptuelle de l'intensité et de l'activité. Les pistes énergiques ont une intensité rapide et forte (par exemple, le death metal a une haute énergie). Les mesures perceptives utilisées comprennent la gamme dynamique, l'intensité sonore perçue, le timbre et l'entropie générale |
+| instrumentalness  | 0-1        | Prédit si une piste ne contient aucun contenu vocal. Les sons "Ooh" et "aah" sont traités comme des instruments. Les pistes instrumentales sont souvent des pistes de musique classique ou de musique électronique |
+| liveness          | 0-1        | Détecte la présence d'un public dans l'enregistrement. Les valeurs supérieures à 0,8 fournissent une forte probabilité que la piste soit un enregistrement en direct |
+| loudness          | ~ -60-0    | L'intensité sonore globale d'une piste en décibels (dB). Les valeurs d'intensité sonore sont calculées en moyenne sur l'ensemble de la piste |
+| speechiness       | 0-1        | Détecte la présence de mots parlés dans une piste. Plus la valeur est proche de 1, plus la piste est probablement entièrement constituée de mots parlés. Les valeurs supérieures à 0,66 décrivent des pistes qui sont probablement entièrement parlées. Les valeurs comprises entre 0,33 et 0,66 décrivent des pistes qui peuvent contenir à la fois de la musique et des paroles, soit en sections, soit en couches, y compris des cas tels que la musique rap. Les valeurs inférieures à 0,33 représentent très probablement de la musique et d'autres pistes ne ressemblant pas à des paroles |
+| mode              | 0-1        | Le mode indique la modalité (majeure ou mineure) de la piste. Les pistes en mode majeur sonnent généralement plus joyeuses, tandis que les pistes en mode mineur sonnent plus tristes |
+| tempo             | ~ 50-200   | Le tempo global estimé d'une piste en battements par minute (BPM). Dans la terminologie musicale, le tempo est la vitesse ou le rythme d'une pièce donnée et dérive directement de la durée moyenne du battement |
+| valence           | 0-1        | Une mesure décrivant la "positivité musicale" transmise par une piste. Les morceaux ayant une valence élevée sonnent plus postifis, tandis que les morceaux ayant une valence faible sonnent plus négatifs (musiques joyeuses vs musiques tristes) |
+| key               | 0-11       | La clé de la piste. Intervalle de 0 à 11, représentant les notes de musique de Do à Si |
+| popularity        | 0-100      | La popularité de la piste. La popularité de la piste est calculée en fonction du nombre de streams Spotify sur une période de temps |
+
+
 
 ```{r, echo=FALSE, include=FALSE}
 # DATASET CLEANING AND PRACTICAL CODE
@@ -206,8 +226,8 @@ ggplot(dfArtisDuration_mean, mapping = aes(x = duration_mean_in_sec)) +
     fill = ifelse(duration_mean_in_sec <= mean(duration_mean_in_sec), "En dessous de la moyenne", "Au dessus de la moyenne")
   ), binwidth =5) +
   scale_fill_manual(
-    name = 'Classification by average song duration',
-    values = c("Below Average" = "#191414", "Above Average" = "#1DB954")
+    name = 'Classification par durée moyenne des musiques',
+    values = c("En dessous de la moyenne" = "#191414", "Au dessus de la moyenne" = "#1DB954")
   ) +
   ggtitle("Distribution de la durée des musiques") +
   xlab("Durée en secondes") +
@@ -245,7 +265,7 @@ g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mea
    theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
    ggtitle("Top 10 des artistes avec les plus courte musiques (moyenne)") +
    ylab("Durée en secondes") +
-  ylim(0, max_duration)
+   ylim(0, max_duration)
 
 
 # Plot the graphs side by side with the same y-axis scale
@@ -330,7 +350,6 @@ ggplot(head(data, 15), aes(fill = Track, y = total_streams, x = fct_reorder(play
   ggtitle("Top 15 des musiques (par nombre total de streams) par genre") +
   labs(y = "Total streams (S and YT)", x = "Genre", fill = "Top 15 Musiques") +
   scale_y_continuous(labels = scales::comma)
-
 ```
 
 Pour résumer ces deux graphiques, dans ce dataset, le genre de musique le plus populaire est l'EMD (sur un nombre moyen d'écoute) mais parmi le top 15 des musiques, le genre de musique le plus populaire est le Latin(o).
@@ -459,9 +478,9 @@ data_2000_2019_perc <- data_2000_2019 %>%
 
 g2 <- ggplot(data_2000_2019_perc, aes(x = track_album_release_year, y = percentage, fill = playlist_genre)) +
   geom_area(alpha=0.8 , size=0.5, colour="black") +
-  ggtitle("Percentage of Total Streams by Genre, by Release Year") +
-  ylab("Percentage of Total Streams") +
-  xlab("Years") +
+  ggtitle("Pourcentage des streams totaux des musiques sorties sur la même année, selon leur genre") +
+  ylab("Pourcentage des streams totaux") +
+  xlab("Années") +
   scale_fill_manual(values = palette_couleurs_unique) +
   scale_y_continuous(labels = scales::percent)
 
