@@ -99,7 +99,6 @@ palette_couleurs_unique <- c("rap" = "#4A79E7",
 
 
 #### Qualité des données 🎯
-
 Avant de se plonger dans l'anaylyse, on tient à noter les biais du dataset.
 
 ```{r, echo=FALSE}
@@ -118,6 +117,21 @@ On remarque tout de suite le biais du dataset, avec une surreprésentation des m
 
 De même, les données ont été prises de manière *arbitraire*, sans critères précis, en récupérant un jeu de musiques pour une liste d'artistes choisis. Il est donc possible que les musiques sélectionnées ne soient pas représentatives de la réalité. Il est important de garder cela en tête lors de l'analyse.
 
+
+#### Analyse Exploratoire du Dataset avec Tableau
+
+Avant de répondre à nos différentes interrogations, nous avons effectué une analyse exploratoire de notre jeu de données à l’aide de tableau. De ces visualisations pouvant être filtré par année, on arrive à mieux cerner la composition de notre Dataset.
+
+![**Tableau de bord**](image/capture dashboard.png)
+
+
+Après suppression des doublons, nous avons 1948 chansons et on constate à travers le tableau de répartition par genre que le rock est le genre le plus représenté avec 230 artistes et 598 chansons tirées de 455 albums contrairement à l’EDM avec 65 artistes et 89 chansons tirées de 83 albums.
+
+Comme l’indique son nom, la visualisation suivante illustre la répartition par genre des musiques publiées ou non sur les pages officielles des artistes. On s’aperçoit qu’il existe dans notre dataset, un nombre non-négligeable de musiques qui sont postées sur YouTube par des pages non-officielles. Si l'on prend l'exemple du rap, ce nombre représente quasiment plus 1/4 des sons. Ensuite, le graphique suivant traduit cette fois, la répartition par genre des sons qui sont produits sous la licence d’une maison de production ou d’un label de musique.
+
+La dernière visualisation, quant à elle, met en évidence, une comparaison entre les différents genres musicaux à travers quelques caractéristiques (avec des valeurs entre 0 et 1) qui sont : Acousticness, Danceability, Energy, Liveness et Speechiness. 
+
+On s’imagine le rap avec plus de mots parlés, mais aussi l’edm, la musique latine, la pop, le r&b un peu plus dansant que le rap et le rock qui eux seront plus énergique avec l’edm. À notre grande surprise, le graphique révèle étonnamment un rock plus acoustique et le rap est plus dansant malgré une différence non-flagrante, mais conforte notre théorie sur les mots parlés. Comme imaginé, l’edm et le rock se classent, comme les musiques les plus énergiques. On peut imaginer que la quantité de données a joué un rôle dans les résultats étonnant que nous avons pu observer.
 
 
 ## Réponses aux questions 🤔 
