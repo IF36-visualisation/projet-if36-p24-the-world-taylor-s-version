@@ -49,6 +49,8 @@ library(stats)
 library(plotly)
 library(ggcorrplot)
 library(GGally)
+library(treemapify)
+library(tidyr)
 
 
 # import dataset
@@ -379,6 +381,14 @@ Pour le genre Latin(o), les musiques font généralement moins de streams que l'
 
 ⚠️ Il est à noter cette étude est basée sur les musiques présente dans le dataset et pas sur toute les musiques existantes.
 
+```{r}
+ggplot(data, aes(area = total_streams, fill = playlist_genre, subgroup = playlist_genre, label = paste(Track))) +
+  geom_treemap() +
+  geom_treemap_subgroup_border(colour = "black", size = 2) +
+  geom_treemap_subgroup_text(place = "left", grow = TRUE, alpha = 0.5, colour = "black", fontface = "italic", min.size = 0) + geom_treemap_text(colour = "white", place = "topleft", grow = TRUE, reflow = TRUE) + 
+  labs(title = "Répartition des musiques les plus streamées par genre") +
+  theme(legend.position = "none")
+```
 
 
 > Est ce que l'energie d'une musique joue un rôle important dans sa popularité ?
@@ -411,6 +421,7 @@ L'évolution de la moyenne mobile est nettement plus analysable sans le nuage de
 Dans le graphique ci-dessous, on voit les streams totaux des musiques sorties sur la même année, selon leur genre. On s'intéresse seulement à la période 2000 2019 (le dataset ne comprenant qu'un faible échantillon de musiques en 2020).
 
 
+
 ```{r echo=FALSE}
 # Turn release date to years
 data$track_album_release_date <- as.Date(data$track_album_release_date)
@@ -420,6 +431,17 @@ data_2000_2019 <- data %>%
   filter(track_album_release_year >= 2000 & track_album_release_year <= 2019) %>%
   group_by(track_album_release_year, playlist_genre) %>%
   summarise(total_streams = sum(total_streams))
+
+#Fill les genre manquant par années
+years <- seq(2000, 2019)
+genres <- unique(data_2000_2019$playlist_genre)
+all_combinations <- expand.grid(track_album_release_year = years, playlist_genre = genres)
+
+data_2000_2019 <- all_combinations %>%
+  left_join(data_2000_2019, by = c("track_album_release_year", "playlist_genre"))
+
+data_2000_2019$total_streams[is.na(data_2000_2019$total_streams)] <- 0
+
 
 
 g1 <- ggplot(data_2000_2019, aes(x = track_album_release_year, y = total_streams, fill = playlist_genre)) +
