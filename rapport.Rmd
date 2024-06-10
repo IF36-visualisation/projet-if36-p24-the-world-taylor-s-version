@@ -71,6 +71,8 @@ library(ggcorrplot)
 library(GGally)
 library(treemapify)
 library(tidyr)
+library(fmsb)
+library(gridExtra)
 
 
 # import dataset
@@ -437,6 +439,50 @@ ggplot(data, aes(x = energy, y = total_streams)) +
 ```
 
 L'évolution de la moyenne mobile est nettement plus analysable sans le nuage de points. On peut remarquer que la moyenne du nombre de streams augmente entre 0 et 0.75 d'energy pour ensuite diminuer entre 0.75 et 1. Il y a une croissance de près de 25% entre 0.25 et 0.75 d'energy et une chute de 33% du nombre de streams entre 0.75 et 1. On peut donc conclure qu'il y a une certaine corrélation entre l'energy et le nombre de streams.
+
+> Quelle est la répartition des caractéristiques musicales (tempo, danceability, etc.) dans les chansons les plus populaires ?
+
+```{r}
+top_musiques <- data[order(data$total_streams, decreasing = TRUE), ][1:5, ]
+
+# Normalisation des variables
+normalize <- function(x) {
+  return((x - min(x)) / (max(x) - min(x)))
+}
+
+top_musiques_norm <- as.data.frame(lapply(top_musiques[, c("energy", "danceability", "speechiness", "tempo", "duration_ms")], normalize))
+
+# Ajouter des lignes pour les valeurs maximales et minimales
+top_musiques_norm <- rbind(rep(1, 5), rep(0, 5), top_musiques_norm)
+
+# Couleurs personnalisées
+colors <- c("#59A13F", "#76B7E2", "#F28E2B", "#e7298a", "#9999EF")
+
+# Titres des axes
+axis_labels <- c("Energy", "Danceability", "Speechiness", "Tempo", "Duration")
+
+# Déplacer le graphique sur la gauche
+par(mar = c(5, 0, 4, 0))
+
+# Créer le radar chart
+radarchart(top_musiques_norm, 
+           axistype = 1, 
+           pcol = colors,
+           plty = 1, 
+           plwd = 2,
+           title = "Radar Chart des Meilleures Musiques",
+           axislabcol = "white",
+           cglcol = "grey",
+           cglty = 1,
+           cglwd = 0.8,
+           vlcex = 0.8,
+           vlabels = axis_labels)
+
+# Ajouter une légende avec les noms des musiques
+par(xpd=TRUE)  # Permettre le dessin en dehors des marges du graphique
+legend("topright", legend = top_musiques$Track, col = colors, lty = 1, lwd = 2, cex = 0.8, bty = "n")
+```
+
 
 > Quelles années ont connu le plus de streams ?
 
