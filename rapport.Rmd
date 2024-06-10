@@ -122,14 +122,17 @@ g1 <- ggplot(data, aes(fill = playlist_genre, x = reorder(playlist_genre, -table
   scale_fill_manual("Genre", values = palette_couleurs_unique) +
   ggtitle("Distribution du nombre de musiques par genre") +
   xlab("Genre") +
-  ylab("Nombre de musiques")
+  ylab("Nombre de musiques")+
+  theme(plot.title = element_text(size = 20))
 
 # Graph of distribution of the number of musics per year
 g2 <- ggplot(data, aes(x = track_album_release_year)) +
   geom_bar() +
   ggtitle("Distribution du nombre de musiques par année") +
   xlab("Année") +
-  ylab("Nombre de musiques")
+  ylab("Nombre de musiques") + 
+  theme(plot.title = element_text(size = 20))
+
 
 plot_grid(g1, g2, ncol = 2)
 
@@ -187,7 +190,8 @@ ggplot(long_data, aes(y = Streams, x = fct_reorder(Artist, Streams, sum), fill =
   xlab("Artistes") +
   coord_flip() +
   scale_y_continuous(labels = scales::comma) +
-  scale_fill_manual("Plateforme", values = c("Spotify" = "#1DB954", "YouTube" = "#FF0000"))
+  scale_fill_manual("Plateforme", values = c("Spotify" = "#1DB954", "YouTube" = "#FF0000"))+  theme(plot.title = element_text(size = 11))
+
 
 ```
 
@@ -232,7 +236,9 @@ ggplot(head(data_factor, 15), aes(fill = key, y = total_streams, x = fct_reorder
     # turning the graph sideways and switching from scientific notation to regular notation for numbers
     coord_flip() +
     scale_y_continuous(labels = scales::comma) +
-    scale_fill_manual("Clé", values = green_colors)
+    scale_fill_manual("Clé", values = green_colors) + 
+    theme(plot.title = element_text(size = 10))
+
 
 ```
 
@@ -327,7 +333,9 @@ g1 <- ggplot(head(dfArtisDuration_sup_mean, 10), aes(y = duration_mean_in_sec, x
   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
   ggtitle("Top 10 des artistes avec les plus longues musiques (moyenne)") +
   ylab("Durée en secondes") +
-  ylim(0, max_duration)
+  ylim(0, max_duration)   + 
+  theme(plot.title = element_text(size = 15))
+
   
 
 g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mean_in_sec,x=Artist,fill = Artist)) +
@@ -338,7 +346,8 @@ g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mea
    theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
    ggtitle("Top 10 des artistes avec les plus courte musiques (moyenne)") +
    ylab("Durée en secondes") +
-   ylim(0, max_duration)
+   ylim(0, max_duration)+ 
+   theme(plot.title = element_text(size = 15))
 
 
 # Plot the graphs side by side with the same y-axis scale
@@ -404,8 +413,9 @@ ggplot(taylor_data, aes(x = reorder(album, release_date), y = duration_ms, fill 
   ylab("Durée (s))") +
   theme_minimal() +
   scale_y_continuous(labels = scales::comma, limits = c(0, 620000)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-  scale_fill_manual("Année de sortie", values = album_colors)
+  theme(axis.text.x = element_text(angle = 30, vjust = 1, hjust = 1)) +
+  scale_fill_manual("Année de sortie", values = album_colors) +
+  theme(plot.title = element_text(size = 15))
 
 
 ```
@@ -518,6 +528,7 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), 
   scale_y_continuous(labels = scales::comma)
 
 ```
+
 En analysant le même graphique sous forme de Violin Plot, on observe plus aisément que les genres Rap, Rock et R&B ont beaucoup plus de musiques avec un faible nombre de streams, comparé aux genres EDM, Pop et Latin(o) qui ont une répartition plus équilibrée. 
 
 ```{r, echo=FALSE}
@@ -528,7 +539,8 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), 
   scale_fill_manual(values = palette_couleurs_unique) +  
   labs(fill = "Genre", x = "Genre", y = "Streams totaux par musique") +
   ggtitle("Violin Plot :  répartition du Nombre total de Streams (par musique) par genre") +
-  scale_y_continuous(labels = scales::comma)
+  scale_y_continuous(labels = scales::comma)+ 
+  theme(plot.title = element_text(size = 12))
 
 ```
 
@@ -600,7 +612,7 @@ radarchart(top_musiques_norm,
            pcol = colors,
            plty = 1, 
            plwd = 2,
-           title = "Radar Chart des Meilleures Musiques",
+           title = "Radar Chart caractéristiques du top 5 musiques",
            axislabcol = "white",
            cglcol = "grey",
            cglty = 1,
@@ -647,7 +659,8 @@ g1 <- ggplot(data_2000_2019, aes(x = track_album_release_year, y = total_streams
   ylab("Nombre Total de streams (S and YT)") +
   xlab("Années") +
   scale_fill_manual(values = palette_couleurs_unique) +
-  scale_y_continuous(labels = scales::comma)
+  scale_y_continuous(labels = scales::comma)+ 
+  theme(plot.title = element_text(size = 12))
 
 data_2000_2019_perc <- data_2000_2019 %>%
   group_by(track_album_release_year, playlist_genre) %>%
@@ -660,7 +673,8 @@ g2 <- ggplot(data_2000_2019_perc, aes(x = track_album_release_year, y = percenta
   ylab("Pourcentage des streams totaux") +
   xlab("Années") +
   scale_fill_manual(values = palette_couleurs_unique) +
-  scale_y_continuous(labels = scales::percent)
+  scale_y_continuous(labels = scales::percent)+ 
+  theme(plot.title = element_text(size = 12))
 
 plot_grid(g1, g2, ncol = 2)
 
