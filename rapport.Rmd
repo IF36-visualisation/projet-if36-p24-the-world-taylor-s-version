@@ -414,15 +414,6 @@ Pour le genre Latin(o), les musiques font généralement moins de streams que l'
 
 ⚠️ Il est à noter cette étude est basée sur les musiques présente dans le dataset et pas sur toute les musiques existantes.
 
-```{r}
-ggplot(data, aes(area = total_streams, fill = playlist_genre, subgroup = playlist_genre, label = paste(Track))) +
-  geom_treemap() +
-  geom_treemap_subgroup_border(colour = "black", size = 2) +
-  geom_treemap_subgroup_text(place = "left", grow = TRUE, alpha = 0.5, colour = "black", fontface = "italic", min.size = 0) + geom_treemap_text(colour = "white", place = "topleft", grow = TRUE, reflow = TRUE) + 
-  labs(title = "Répartition des musiques les plus streamées par genre") +
-  theme(legend.position = "none")
-```
-
 
 > Est ce que l'energie d'une musique joue un rôle important dans sa popularité ?
 
