@@ -77,17 +77,28 @@ library(tidyr)
 data <- read_csv("data/datasetfinal.csv")
 data <- data.frame(data)
 
+taylor_data <- read_csv("data/taylor_swift_albums.csv")
+taylor_data <- data.frame(taylor_data)
+
 # clean dataset
 data <- data %>%
   select(-c(playlist_name, playlist_id, Url_spotify, Url_youtube, Title, Duration_ms, Danceability, Energy, Key, Loudness, Speechiness, Acousticness, Instrumentalness, Liveness, Valence, Tempo, track_name, track_artist)) %>%   # remove useless features
   na.omit() %>%   # remove incomplete rows
   distinct(Uri, .keep_all = TRUE)   # remove duplicated rows
-  
+
+# Turn release date to years
+data$track_album_release_date <- as.Date(data$track_album_release_date)
+data$track_album_release_year <- as.numeric(format(data$track_album_release_date, "%Y"))
 
 # add relevant features to dataset
 data$total_streams <- data$Stream + data$Views
 data <- arrange(data, desc(total_streams))
+
+# Generate a gradient of green colors
+green_colors <- colorRampPalette(c("#3de076", "#000000"))(length(unique(data$key)))
+
 #Définition des couleurs pour les genres de musique (graphiques cohérents)
+
 
 palette_couleurs_unique <- c("rap" = "#4A79E7",
                              "pop" = "#F28E2B",
@@ -102,13 +113,14 @@ palette_couleurs_unique <- c("rap" = "#4A79E7",
 Avant de se plonger dans l'anaylyse, on tient à noter les biais du dataset.
 
 ```{r, echo=FALSE}
-# graph of distribution of the number of musics per genre, ordered by the number of musics
+
+# Graph of distribution of the number of musics per genre, ordered by the number of musics
 ggplot(data, aes(fill = playlist_genre, x = reorder(playlist_genre, -table(playlist_genre)[playlist_genre]))) +
   geom_bar() +
-  scale_fill_manual(values = palette_couleurs_unique) +
-  ggtitle("Distribution of the number of musics per genre") +
+  scale_fill_manual("Genre", values = palette_couleurs_unique) +
+  ggtitle("Distribution du nombre de musiques par genre") +
   xlab("Genre") +
-  ylab("Number of musics")
+  ylab("Nombre de musiques")
 
 ```
 
@@ -136,6 +148,42 @@ On s’imagine le rap avec plus de mots parlés, mais aussi l’edm, la musique 
 
 ## Réponses aux questions 🤔 
 
+> Quels sont les artistes les plus populaires sur YouTube et Spotify ? Et est-ce que on a les même résulats selon la plateforme ?
+
+
+```{r, echo=FALSE}
+
+# Create the data frame with the top 20 artists with the most cumulative total streams on all their musics
+top_artists <- data %>%
+  group_by(Artist) %>%
+  summarise(total_streams = sum(Stream + Views)) %>%
+  arrange(desc(total_streams)) %>%
+  head(20)
+
+# Create a long format data frame for stacked bar chart
+long_data <- data %>%
+  filter(Artist %in% top_artists$Artist) %>%
+  group_by(Artist) %>%
+  summarise(Spotify = sum(Stream), YouTube = sum(Views)) %>%
+  pivot_longer(cols = c(Spotify, YouTube), names_to = "Platform", values_to = "Streams")
+
+# Plotting
+ggplot(long_data, aes(y = Streams, x = fct_reorder(Artist, Streams, sum), fill = Platform)) + 
+  geom_bar(position = "stack", stat = "identity") +
+  ggtitle("Top 20 des artistes avec le plus de streams totaux (Spotify et YouTube)") +
+  ylab("Nombre Total de streams (Spotify et YouTube)") +
+  xlab("Artistes") +
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma) +
+  scale_fill_manual("Plateforme", values = c("Spotify" = "#1DB954", "YouTube" = "#FF0000"))
+
+```
+
+On voit rapidement que dans notre dataset, Ed Sheeran et Coldplay se détachent en terme de streams totaux. Cela s'explique notamment par la présence de 3 musiques d'Ed Sheeran à + de 3 milliards de vues (Perfect, Thinking Out Loud, Shape of You). De même pour Coldplay, avec 4 musiques à + d'1 milliard de vues (Paradise, Hymn for the Weekend, Something Just Like This, The Scientist).
+
+Il est intéressant de voir la répartition des streams entre Spotify et YouTube. On voit par exemple que pour Luis Fonsi, la majorité des streams se font sur YouTube ; ceci s'explique par son hit *Despacito*. Sur Youtube, les gens ont tendance à écouter les musiques populaires quelques fois, alors que sur Spotify, l'audience écoute en boucle les chansons de ses artistes préférés. D'où le fait que des musiques comme *Despacito* soient largement + écoutées sur YouTube que Spotify. A l'inverse, les musiques d'AC/DC, XXXTENTACION ou Queen sont largement plus écoutées sur Spotify que YouTube, indiquant une plus forte portion d'auditeurs fidèles sur Spotify.
+
+
 > Quelles sont les chansons les plus populaires sur YouTube et Spotify ?
 
 > Y a-t'il une corrélation entre les genres de musique et leur clé musicale ?
@@ -155,27 +203,25 @@ soit un *Fa*.
 
 
 ```{r, echo=FALSE}
-# PLOT 1 : Top X songs from total streams (S and YT) by artist and key
 
 # Convert 'key' to a factor
 data_factor <- data %>%
   mutate(key = as.factor(key))
 
-# Generate a gradient of green colors
-green_colors <- colorRampPalette(c("#3de076", "#000000"))(length(unique(data$key)))
 
 # Create the bar plot with shades of green for the fill
 ggplot(head(data_factor, 15), aes(fill = key, y = total_streams, x = fct_reorder(Artist, total_streams, sum))) + 
     geom_bar(position = "stack", stat = "identity") +
     geom_text(aes(label = Track), position = position_stack(vjust = 0.5), color = "white", size = 2) +
     ggtitle("Top 15 des musiques avec le Nombre total de streams (S and YT) par artistes et clé ") +
-    ylab("Nombre Total de streams (S and YT)") +
+    ylab("Nombre total de streams (S and YT)") +
     xlab("Artistes") +
     
     # turning the graph sideways and switching from scientific notation to regular notation for numbers
     coord_flip() +
     scale_y_continuous(labels = scales::comma) +
-    scale_fill_manual(values = green_colors)
+    scale_fill_manual("Clé", values = green_colors)
+
 ```
 
 Si on s'intéresse uniquement aux 15 premières chansons, la clé moyenne devient alors :
@@ -190,7 +236,7 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -key, mean), y = key, fill = pl
   geom_boxplot() +
   scale_fill_manual(values = palette_couleurs_unique) +  
   labs(fill = "Genre", x = "Genre", y = "Clé") +
-  ggtitle("Whisker Plot des clés par Genre pour toutes les musiques") +
+  ggtitle("Whisker Plot des clés par genre pour toutes les musiques") +
   coord_flip()
 ```
 
@@ -270,6 +316,7 @@ g1 <- ggplot(head(dfArtisDuration_sup_mean, 10), aes(y = duration_mean_in_sec, x
   ggtitle("Top 10 des artistes avec les plus longues musiques (moyenne)") +
   ylab("Durée en secondes") +
   ylim(0, max_duration)
+  
 
 g2 <- ggplot(head(dfArtisDuration_infEg_mean,10), mapping = aes(y = duration_mean_in_sec,x=Artist,fill = Artist)) +
    geom_bar(position = "stack", stat = "identity") +
@@ -291,9 +338,85 @@ plot_grid(g1, g2, ncol = 2)
 
 Sur ces 2 graphiques, on peut voir que dans les deux tops 10, la moyenne des artistes se détache largement de la durée moyenne du dataset et que "*Bob Marley & The Wailers*" fait plus de longues chansons contrairement à "*Pouya*" qui a la moyenne la plus basse.
 
-⚠️ Il est important de relativisé, car il ne faut pas perdre de vue que nous sommes en présence d'un dataset qui ne contient pas toute la discographie de ces artistes.
+⚠️ Il est important de relativiser, car il ne faut pas perdre de vue que nous sommes en présence d'un dataset qui ne contient pas toute la discographie de ces artistes.
 
-Avec ces constats, on est en droit de se demander si la durée des songs, n'a pas d'impact sur la popularité de la musique.
+```{r, echo=FALSE}
+
+#Select the 5 artists with the most songs in the dataset
+most_song_artists <- data %>%
+  group_by(Artist) %>%
+  summarise(total_songs = n()) %>%
+  arrange(desc(total_songs)) %>%
+  head(5)
+
+most_song_artists_data <- data %>%
+  filter(Artist %in% most_song_artists$Artist)
+
+# Create the plot
+ggplot(most_song_artists_data, aes(x = track_album_release_year, y = duration_ms, color = Artist)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) +
+  ggtitle("Evolution de la durée des chansons au fil du temps, pour quelques artistes") +
+  xlab("Années") +
+  ylab("Durée (s)") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::comma)
+
+```
+
+On observe ici les 5 artists possédant le plus de musiques dans le dataset. On voit que la durée des chansons de ces artistes a tendance à augmenter au fil des années. Cela peut s'expliquer par le fait que les artistes ont tendance profiter d'une plus grande liberté artistique une fois que leur communauté est marquée, ou à une évolution de leur style musical.
+
+Nous allons ici prendre l'exemple de Taylor Swift, grâce à sa discographie extensive s'étendant sur 11 albums, 4 ré-enregistrements et 18 ans de carrière.
+
+
+```{r, echo=FALSE, fig.align='center', fig.height=10, fig.width=10}
+
+# Extract the year from the release_date column
+taylor_data <- taylor_data %>%
+  mutate(release_year = lubridate::year(release_date))
+
+# Create a vector of colors for each unique release year
+unique_years <- unique(taylor_data$release_year)
+color_palette <- rainbow(length(unique_years))
+
+# Map colors
+year_colors <- setNames(color_palette, unique_years)
+album_colors <- c("#7ede7e", "#f5d64e", "#cb94e3", "#bf1d34", "#74d6fc", "#4d4849", "#f774a8", "#CDC9C1", "#c77f50", "#3156ad", "#8e39b3", "#f7f6e9")
+
+
+# Create the plot
+ggplot(taylor_data, aes(x = reorder(album, release_date), y = duration_ms, fill = as.factor(release_year))) +
+  geom_boxplot() +
+  ggtitle("Evolution de la durée des chansons au fil du temps (Taylor Swift)") +
+  xlab("Albums") +
+  ylab("Durée (s))") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::comma, limits = c(0, 620000)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  scale_fill_manual("Année de sortie", values = album_colors)
+
+
+```
+
+Dans le cas de Taylor Swift, on que la durée des chansons fluctue d'album en album, mais qu'aucune réelle tendance ne se dégage. Toutefois, on voit que l'album *Speak Now* (Taylor's Version) est très long, avec une durée moyenne de chansons de près de 5 minutes. Cela s'explique en partie par le fait que la chanteuse a écrit cet album en pensant que ce serait son dernier, ayant déjà dépassé le pic de sa carrière avec son précédent album *Fearless*. Ce ne fut pas le cas, mais l'album reste un des plus longs de sa discographie du fait de la liberté créative qu'elle y a pris.
+
+On remarque aussi plusieurs outliers, avec notamment une chanson de 6 minutes, et une chanson de 10 minutes, qui en restent certaines des chansons les plus écoutées et appréciées de sa discographie **(chiffres de stream juin 2024)**.
+
+```{r, echo=FALSE}
+longest_songs <- taylor_data %>%
+  arrange(desc(duration_ms)) %>%
+  head(2)
+
+longest_songs$streams_spotify <- c(840899011, 105316578)
+longest_songs$streams_youtube <- c(251178119, 9699483)
+longest_songs <- longest_songs %>%
+  select(name, album, duration_ms, streams_spotify, streams_youtube)
+
+longest_songs
+```
+
+
+Avec ces constats, on est en droit de se demander si la durée des chansons a un réel impact sur leur popularité.
 
 > Les chansons plus longues ont-elles une popularité différente ?
 
@@ -305,8 +428,8 @@ data %>% select(track_popularity, duration_ms) %>%
   geom_point() + 
   geom_smooth()+
   ggtitle("Scattter Plot : Durée & Popularité") +
-  xlab("Durée en secondes") +
-  ylab("Popularité des Tracks en pourcentage")
+  xlab("Durée (s)") +
+  ylab("Popularité des tracks (%)")
 
 ```
 
@@ -377,8 +500,8 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), 
   geom_boxplot() +
   stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "black", position = position_dodge(width = 0.75)) +  # Ajouter la moyenne
   scale_fill_manual(values = palette_couleurs_unique) +  
-  labs(fill = "Genre", x = "Genre", y = "Total Streams par musique") +
-  ggtitle("Whisker Plot : répartition du Nombre total de Streams (par musique) par Genre") +
+  labs(fill = "Genre", x = "Genre", y = "Streams totaux par musique") +
+  ggtitle("Whisker Plot : répartition du Nombre total de Streams (par musique) par genre") +
   coord_flip() +
   scale_y_continuous(labels = scales::comma)
 
@@ -391,8 +514,8 @@ ggplot(data, aes(x = fct_reorder(playlist_genre, -total_streams, .desc = TRUE), 
   geom_violin() +
   stat_summary(fun = "mean", geom = "point", shape = 18, size = 3, color = "black", position = position_dodge(width = 0.75)) +  # Ajouter la moyenne
   scale_fill_manual(values = palette_couleurs_unique) +  
-  labs(fill = "Genre", x = "Genre", y = "Total Streams par musique") +
-  ggtitle("Violin Plot :  répartition du Nombre total de Streams (par musique) par Genre") +
+  labs(fill = "Genre", x = "Genre", y = "Streams totaux par musique") +
+  ggtitle("Violin Plot :  répartition du Nombre total de Streams (par musique) par genre") +
   scale_y_continuous(labels = scales::comma)
 
 ```
@@ -432,7 +555,7 @@ Nous analysons cette question avec 2 graphiques utilisant les mêmes données. L
 ```{r}
 ggplot(data, aes(x = energy, y = total_streams)) + geom_point() +
   geom_smooth() +
-  labs(x = "Energie", y = "Total Streams", title = "Correlation entre Energie et Total Streams") +
+  labs(x = "Energie", y = "Streams totaux", title = "Scatter Plot : Energie et Streams") +
   theme_minimal()
 ```
 
@@ -441,7 +564,7 @@ On peut remarquer que la densité d'énergie avec le plus de musiques se situe e
 ```{r}
 ggplot(data, aes(x = energy, y = total_streams)) +
   geom_smooth() +
-  labs(x = "Energie", y = "Total Streams", title = "Correlation entre Energie et Total Streams") +
+  labs(x = "Energie", y = "Total Streams", title = "Correlation entre énergie et streams totaux") +
   theme_minimal()
 ```
 
@@ -456,9 +579,6 @@ Dans le graphique ci-dessous, on voit les streams totaux des musiques sorties su
 
 
 ```{r echo=FALSE}
-# Turn release date to years
-data$track_album_release_date <- as.Date(data$track_album_release_date)
-data$track_album_release_year <- as.numeric(format(data$track_album_release_date, "%Y"))
 
 data_2000_2019 <- data %>%
   filter(track_album_release_year >= 2000 & track_album_release_year <= 2019) %>%
