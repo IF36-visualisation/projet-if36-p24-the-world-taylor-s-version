@@ -1,0 +1,468 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+L'équipe de projet
+\texttt{The\ World\ (Taylor\textquotesingle{}s\ Version)} est composée
+de quatres personnes : Marielle CHARON, Kevin HERNANDEZ, Anouchka NEVEU
+et Amadou ISSAKA AMADOU. Le but de ce projet est de répondre à plusieurs
+questions sur le thème de la musique et plus précisement sur les
+platformes Spotify et Youtube grace à la visualisation de données. Le
+projet sera développé sous R.
+
+\hypertarget{donnuxe9es}{%
+\subsection{Données 💡}\label{donnuxe9es}}
+
+Le dataset utilisé (\texttt{Datasetfinal.csv}) est un merge de deux
+datasets :
+\href{https://www.kaggle.com/datasets/salvatorerastelli/spotify-and-youtube}{Spotify
+and Youtube} et
+\href{https://www.kaggle.com/datasets/sujaykapadnis/spotify-songs}{Spotify
+songs}. Le merge final pèse 6.55 MB et est sous format CSV. Il contient
+3668 éléments. La clé qui a servi au merge est l'ID de la musique sur
+Spotify.
+
+Les deux jeux de données contiennent des données datant de \textbf{2023}
+collectées depuis les API officielles de YouTube et Spotify. On a,
+notamment, les 10 musiques les plus populaires d'une variété d'artistes.
+
+\begin{quote}
+Il possède à l'heure actuelle 50 features, avant cleaning de celles
+pertinentes. On regroupe les features sous ces catégories :
+\end{quote}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Catégorie
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Features associées
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Informations générales & artist, track\_name, album, album\_type,
+duration\_ms, channel, description, track\_album\_release\_date,
+\ldots{} \\
+Scores musicaux & danceability, energy, key, loudness, acousticness,
+instrumentalness, liveness, valence, tempo \\
+Popularité & views, likes, comments, stream, track\_popularity \\
+Variables supplémentaires & uri (Spotify ID), url\_spotify,
+url\_youtube, licensed, \ldots{} \\
+\end{longtable}
+
+\begin{quote}
+Les variables supplémentaires n'expliquent pas la donnée pour l'analyse,
+mais sont utilisées pour structurer le dataset. Les features se
+répartissent selon plusieurs types : nominales (nom de
+l'artiste/musique/album, \ldots), discrètes (tonalité) ou continues
+(scores musicaux).
+\end{quote}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{ruxe9ponses-aux-questions}{%
+\subsection{Réponses aux questions 🤔}\label{ruxe9ponses-aux-questions}}
+
+\begin{quote}
+Quelles sont les chansons les plus populaires sur YouTube et Spotify ?
+\end{quote}
+
+\begin{quote}
+Y a-t'il une corrélation entre les genres de musique et leur clé
+musicale ?
+\end{quote}
+
+Dans le graphique ci-dessous, on voit les 15 chansons les plus écoutées
+(streams cumulés sur YouTube et Spotify). On voit rapidement que
+\emph{Ed Sheeran} domine le classement puisqu'il cumule 3 des 15
+chansons les plus écoutées. ⚠️ \textbf{CELA NE REPRESENTE PAS LES
+ARTISTES AVEC LE PLUS DE STREAMS TOTAUX CUMULES}
+
+On décide d'analyser ces musiques en fonction de leur clé musicale. Dans
+le dataset, chaque clé est associée à un entier selon
+\href{https://en.wikipedia.org/wiki/Pitch_class\#:~:text=\%5Bedit\%5D-,Pitch\%20class,-Pitch\%0Aclass}{cet
+encodage}. Globalement, plus une clé est élevée, plus une chanson a
+tendance à être aïgue. A l'inverse, une chanson à clé basse sera plus
+grave.
+
+Sur l'ensemble du dataset, la clé moyenne est :
+
+\begin{verbatim}
+## [1] 5.365503
+\end{verbatim}
+
+soit un \emph{Fa}.
+
+\includegraphics{rapport_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+Si on s'intéresse uniquement aux 15 premières chansons, la clé moyenne
+devient alors :
+
+\begin{verbatim}
+## [1] 3.866667
+\end{verbatim}
+
+plus proche d'un \emph{Mi} (soit une clé inférieure).
+
+\includegraphics{rapport_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+En regardant les genres de toutes les musiques du dataset, on voit que
+le genre avec la clé médiane la plus élevée est le rap. Les genres les
+moins variés en terme de de clés musicales sont le rock et l'EDM
+(Electronic Dance Music).
+
+⚠️ Il est à noter que la classification du genre des musiques dans le
+dataset peut parfois être hasardeuse.
+
+\begin{quote}
+Quelle est la durée moyenne des chansons par artiste ? Est-ce qu'il y a
+des artistes qui ont des chansons plus longues ou plus courtes que la
+moyenne ?
+\end{quote}
+
+L'idée à travers ces différentes interrogations est de pouvoir situer
+les artistes en fonction de la durée moyenne de leurs chansons. Pour
+cela, nous allons dans un premier temps voir la
+\textbf{\emph{distribution}} de la durée moyenne de chansons à l'aide
+d'un \textbf{\emph{histogramme}}, et ensuite faire la
+\textbf{\emph{comparaison}} entre ces artistes. Avant cela, il est
+important de noter que :
+
+\begin{verbatim}
+## [1] "la durée moyenne d'un song est de: 233.91s soit 3mn53s"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Le song le plus long dure: 517.12s soit 8mn37s"
+\end{verbatim}
+
+\begin{verbatim}
+## [1] "Le plus court dure: 92.09s soit 1mn32s"
+\end{verbatim}
+
+\begin{center}\includegraphics{rapport_files/figure-latex/Histogramme-1} \end{center}
+
+On constate à travers cet histogramme que toutes les chansons de notre
+dataset durent plus de 100s soit plus d'une 1mn40s et qu'il y en a qui
+vont jusqu'à plus de 400s soit plus de 6mn. Cependant malgré la faible
+domination des songs dans la moyenne générale de durée, un certain
+nombre d'artistes proposent une discographie de musiques plus longues.
+
+Si l'on pousse la curiosité encore plus loin, on peut faire le top 10
+des artistes qui produisent en moyenne plus de longues ou au contraire
+plus de courtes musiques. Pour cela, nous, utiliserons un
+\textbf{\emph{Bar\_Chart}} pour faire la \textbf{\emph{comparaison}}
+entre ces artistes.
+
+\begin{center}\includegraphics{rapport_files/figure-latex/Artist mean duration -1} \end{center}
+
+Sur ces 2 graphiques, on peut voir que dans les deux tops 10, la moyenne
+des artistes se détache largement de la durée moyenne du dataset et que
+``\emph{Bob Marley \& The Wailers}'' fait plus de longues chansons
+contrairement à ``\emph{Pouya}'' qui a la moyenne la plus basse.
+
+⚠️ Il est important de relativisé, car il ne faut pas perdre de vue que
+nous sommes en présence d'un dataset qui ne contient pas toute la
+discographie de ces artistes.
+
+Avec ces constats, on est en droit de se demander si la durée des songs,
+n'a pas d'impact sur la popularité de la musique.
+
+\begin{quote}
+Les chansons plus longues ont-elles une popularité différente ?
+\end{quote}
+
+En tant que mélomane, on a tendance à croire que les chansons les plus
+longues sont moins populaires en raison de la tendance actuelle des
+artistes pour les musiques de courte durée. Afin d'affirmer ou
+d'infirmer cette théorie, nous allons à l'aide d'un
+\textbf{\emph{Scatter Plot}}, étudier la \textbf{\emph{relation}} entre
+la durée et la popularité des différents songs du dataset.
+
+\begin{verbatim}
+## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+\end{verbatim}
+
+\begin{center}\includegraphics{rapport_files/figure-latex/duration & popularity-1} \end{center}
+
+À travers ce nuage de points, on observe :
+
+\begin{itemize}
+\tightlist
+\item
+  une forte concentration de songs ayant une durée comprise entre 200 et
+  300 secondes et avec une popularité oscillant entre 60 et 80 \%.
+\item
+  les songs les plus, mais aussi les moins populaires se situent dans la
+  même plage de durée,
+\item
+  les musiques les plus courtes et les plus longues partagent la même
+  plage de popularité.
+\item
+  la dispersion du nuage de points par rapport à la droite de
+  régression.
+\end{itemize}
+
+Tout ceci nous pousse à douter de l'existence d'une réelle relation
+entre la popularité et la durée d'une musique. Dans le doute, on se
+réfère au coefficient de corrélation qui est de :
+
+\begin{verbatim}
+## [1] -0.1568972
+\end{verbatim}
+
+Le résultat négatif traduit une corrélation négative, c'est-à-dire que
+les deux variables évoluent en direction opposée, ce qui conforte nos
+soupçons sur l'impopularité des longues chansons. Cette relation demeure
+très faible et nous pensons que la taille de notre jeu de données ne
+nous permet pas de s'assurer aisément de cette relation.
+
+\begin{quote}
+Quel genre de musique est le plus populaire sur Spotify/Youtube ?
+\end{quote}
+
+Dans le graphique ci-dessous, nous pouvons voir le classement des genres
+de musiques par rapport au nombre moyen de stream (sur spotify et
+youtube) que fait une musique de ce genre, ce qui donne donc un
+classement de popularité. On choisi cette méthode de \emph{``nombre
+moyen de stream que fait une musique''} pour catégoriser la popularité
+des genres car nous ne pouvons pas simplement afficher un nombre total
+de Stream pour chaque genre sachant qu'il n'y a pas un nombre égal de
+musique par genre. Il faut diviser le nombre total de stream par genre
+par le nombre de musique de ce genre, ce qui donne un nombre moyen de
+stream pour chaque genre.
+
+\includegraphics{rapport_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+La premiere chose que l'on remarque c'est que l'\textbf{EDM} (Electronic
+Dance Music) est en tête de classement suivie par la \textbf{Pop} et les
+musiques \textbf{Latin(o)}. Pourtant si on reprend les 15 musiques les
+plus populaire et qu'on les classe par genre, on se rend compte que le
+\textbf{Latin(o)} domine le classement, suivit par la \textbf{Pop} puis
+enfin l'\textbf{EDM}. Comme le montre le graphique ci-dessous.
+
+\includegraphics{rapport_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+Pour résumer ces deux graphiques, dans ce dataset, le genre de musique
+le plus populaire est l'EMD (sur un nombre moyen d'écoute) mais parmi le
+top 15 des musiques, le genre de musique le plus populaire est le
+Latin(o). Alors, comment expliquer cette différence de résulat ?
+
+Grace au diagramme Whisker Plot
+\href{https://cdn2.boryl.fr/2020/11/3d5689a5-box-plot-boi\%CC\%82tes-a\%CC\%80-moustaches--300x223.png}{(définition)}
+ci-dessous, on voit que le classement par la médiane nous donne encore
+une information différente en mettant la Pop en première place. C'est
+normal et même plus juste car la \textbf{moyenne est sensible aux
+``outliers''}, tandis que la médiane est plus robuste à leur présence.
+Si un petit nombre de valeurs extrêmes sont significativement plus
+élevées que les autres valeurs de l'ensemble de données, elles peuvent
+tirer la moyenne vers le haut, tandis que la médiane reste relativement
+stable. De plus l'impact sur la moyenne peut varier en fonction de la
+quantité de données et de la répartition des valeurs extrêmes.
+
+\includegraphics{rapport_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+Comme on peut le voir dans le tableau ci dessous, le genre EDM contient
+beaucoup moins de musique par rapport à la Pop ou au Latin(o), donc le
+petit nombre de musiques extrêmes (en nombre de stream) à une grande
+influence sur la moyenne de stream ce qui a tendance à fausser notre
+classement initial.
+
+\begin{verbatim}
+##   Genre Nombre_de_musiques
+## 1   edm                 89
+## 2 latin                284
+## 3   pop                385
+## 4   r&b                310
+## 5   rap                282
+## 6  rock                598
+\end{verbatim}
+
+Que faut-il conclure pour cette question ? Le classement par la médiane
+est plus pertinent, ce qui place donc la \textbf{Pop comme le genre le
+plus populaire}. Pour le genre Latin(o), les musiques font généralement
+moins de streams que l'EDM et la Pop sauf quelques cas particuliers qui
+apparaissent dans notre top 15 des musiques les plus populaire.
+
+⚠️ Il est à noter cette étude est basée sur les musiques présente dans
+le dataset et pas sur toute les musiques existantes.
+
+\begin{quote}
+Est ce que l'energy d'une musique joue un rôle important dans sa
+popularité ?
+\end{quote}
+
+C'est une question légitime, existe t'il une corrélation entre l'energie
+d'une musique ainsi que sa popularité (total du nombre de streams sur
+les 2 plateformes). Nous analysons cette question avec 2 graphiques
+utilisant les mêmes données. Le 1er graphique est un scatter plot avec
+une moyenne mobile du nombre de streams. Le 2nd est le même graphique
+sans le nuage de points pour mieux analyser la moyenne mobile qui semble
+constante sur le 1er.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ energy, }\AttributeTok{y =}\NormalTok{ total\_streams)) }\SpecialCharTok{+} \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Energy"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Streams"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Correlation between Energy and Total Streams"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+\end{verbatim}
+
+\includegraphics{rapport_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+On peut remarquer que la densité d'énergie avec le plus de musiques se
+situe entre 0.4 et 1.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(data, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ energy, }\AttributeTok{y =}\NormalTok{ total\_streams)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Energy"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Total Streams"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Correlation between Energy and Total Streams"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'
+\end{verbatim}
+
+\includegraphics{rapport_files/figure-latex/unnamed-chunk-11-1.pdf}
+
+L'évolution de la moyenne mobile est nettement plus analysable sans le
+nuage de points. On peut remarquer que la moyenne du nombre de streams
+augmente entre 0 et 0.75 d'energy pour ensuite diminuer entre 0.75 et 1.
+Il y a une croissance de près de 25\% entre 0.25 et 0.75 d'energy et une
+chute de 33\% du nombre de streams entre 0.75 et 1. On peut donc
+conclure qu'il y a une certaine corrélation entre l'energy et le nombre
+de streams.
+
+\end{document}
