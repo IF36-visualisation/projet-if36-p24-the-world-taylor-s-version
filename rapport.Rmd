@@ -1,3 +1,13 @@
+---
+title: "Rapport - Projet IF36"
+author: "The World (Taylor's Version)"
+output:
+  html_document:
+    toc: true
+    toc_depth: 6
+    css: styles.css
+
+---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -6,8 +16,15 @@ knitr::opts_chunk$set(
 	warning = FALSE
 )
 ```
-## Introduction ✨
+
+<hr style="border: 1px solid;">
+<div align="justify">
+
+## Introduction ✨ {#introduction}
 L'équipe de projet `The World (Taylor's Version)` est composée de quatres personnes : Marielle CHARON, Kevin HERNANDEZ, Anouchka NEVEU et Amadou ISSAKA AMADOU. Le but de ce projet est de répondre à plusieurs questions sur le thème de la musique et plus précisement sur les platformes Spotify et Youtube grace à la visualisation de données. Le projet sera développé sous R.
+
+<hr style="border: 1px solid;">
+
 
 ## Données 💡
 Le dataset utilisé (`Datasetfinal.csv`) est un merge de deux datasets : [Spotify and Youtube](https://www.kaggle.com/datasets/salvatorerastelli/spotify-and-youtube) et [Spotify songs](https://www.kaggle.com/datasets/sujaykapadnis/spotify-songs). Le merge final pèse 6.55 MB et est sous format CSV. Il contient 3668 éléments. La clé qui a servi au merge est l'ID de la musique sur Spotify.
@@ -30,9 +47,11 @@ On regroupe les features sous ces catégories :
 <br>
 Les features se répartissent selon plusieurs types : nominales (nom de l'artiste/musique/album, ...), discrètes (tonalité) ou continues (scores musicaux).
 
+<hr style="border: 1px solid;">
+
 #### Features audio 🎵
 
-Les features audio sont des données extraites des musiques elles-mêmes par l'API Spotify. Elles sont calculées par des algorithmes de traitement du signal audio. Ces algorithmes ne sont pas publics, mais voici ce que Spotify dit de ces features :
+Les features audio sont des données extraites des musiques elles-mêmes par l'API Spotify. Elles sont calculées par des algorithmes de traitement du signal audio. Ces algorithmes ne sont pas publics, nous ne pouvons donc pas faire d'analyse dessus, et cela peut être arbitraire, mais voici ce que Spotify dit de ces features :
 
 
 | Paramètre         | Intervalle | Description |
@@ -49,7 +68,7 @@ Les features audio sont des données extraites des musiques elles-mêmes par l'A
 | key               | 0-11       | La clé de la piste. Intervalle de 0 à 11, représentant les notes de musique de Do à Si |
 | popularity        | 0-100      | La popularité de la piste. La popularité de la piste est calculée en fonction du nombre de streams Spotify sur une période de temps |
 
-
+<hr style="border: 1px solid;">
 
 ```{r, echo=FALSE, include=FALSE}
 # DATASET CLEANING AND PRACTICAL CODE
@@ -144,8 +163,9 @@ On remarque tout de suite le biais du dataset, avec une surreprésentation des m
 
 De même, les données ont été prises de manière *arbitraire*, sans critères précis, en récupérant un jeu de musiques pour une liste d'artistes choisis. Il est donc possible que les musiques sélectionnées ne soient pas représentatives de la réalité. Il est important de garder cela en tête lors de l'analyse.
 
+<hr style="border: 1px solid;">
 
-#### Analyse Exploratoire du Dataset avec Tableau
+## Analyse Exploratoire du Dataset avec Tableau
 
 Avant de répondre à nos différentes interrogations, nous avons effectué une analyse exploratoire de notre jeu de données à l’aide de tableau. De ces visualisations pouvant être filtré par année, on arrive à mieux cerner la composition de notre Dataset.
 
@@ -160,10 +180,25 @@ La dernière visualisation, quant à elle, met en évidence, une comparaison ent
 
 On s’imagine le rap avec plus de mots parlés, mais aussi l’edm, la musique latine, la pop, le r&b un peu plus dansant que le rap et le rock qui eux seront plus énergique avec l’edm. À notre grande surprise, le graphique révèle étonnamment un rock plus acoustique et le rap est plus dansant malgré une différence non-flagrante, mais conforte notre théorie sur les mots parlés. Comme imaginé, l’edm et le rock se classent, comme les musiques les plus énergiques. On peut imaginer que la quantité de données a joué un rôle dans les résultats étonnant que nous avons pu observer.
 
+<hr style="border: 1px solid;">
+
+## Utilisation de Shiny
+
+Lors de notre projet nous avons également utilisé **Shiny** afin de présenter quelques graphiques de façon dynamique et plus raffinée. 
+
+L'application est dans le dossier *shiny* puis on peut lancer le ficher *app.R* : nous obtenons alors une application contenant 3 onglets.
+Les deux premiers onglets permettent de répondre au quatres dernières questions de ce rapport, et le dernier onglet contient une petite galerie d'image de *Taylor Swift*.
+
+![ScreenShot shiny galerie](image/shiny_galerie.png)
+
+
+
+
+<hr style="border: 1px solid;">
 
 ## Réponses aux questions 🤔 
 
-> Quels sont les artistes les plus populaires sur YouTube et Spotify ? Et est-ce que on a les même résulats selon la plateforme ?
+##### **Quels sont les artistes les plus populaires sur YouTube et Spotify ? Et est-ce que on a les même résulats selon la plateforme ?**
 
 
 ```{r, echo=FALSE}
@@ -199,10 +234,11 @@ On voit rapidement que dans notre dataset, Ed Sheeran et Coldplay se détachent 
 
 Il est intéressant de voir la répartition des streams entre Spotify et YouTube. On voit par exemple que pour Luis Fonsi, la majorité des streams se font sur YouTube ; ceci s'explique par son hit *Despacito*. Sur Youtube, les gens ont tendance à écouter les musiques populaires quelques fois, alors que sur Spotify, l'audience écoute en boucle les chansons de ses artistes préférés. D'où le fait que des musiques comme *Despacito* soient largement + écoutées sur YouTube que Spotify. A l'inverse, les musiques d'AC/DC, XXXTENTACION ou Queen sont largement plus écoutées sur Spotify que YouTube, indiquant une plus forte portion d'auditeurs fidèles sur Spotify.
 
+<hr style="border: 1px solid;">
 
-> Quelles sont les chansons les plus populaires sur YouTube et Spotify ?
+##### **Quelles sont les chansons les plus populaires sur YouTube et Spotify ?**
 
-> Y a-t'il une corrélation entre les genres de musique et leur clé musicale ?
+##### **Y a-t'il une corrélation entre les genres de musique et leur clé musicale ?**
 
 Dans le graphique ci-dessous, on voit les 15 chansons les plus écoutées (streams cumulés sur YouTube et Spotify). On voit rapidement que *Ed Sheeran* domine le classement puisqu'il cumule 3 des 15 chansons les plus écoutées.
 ⚠️ **CELA NE REPRESENTE PAS LES ARTISTES AVEC LE PLUS DE STREAMS TOTAUX CUMULES**
@@ -263,10 +299,9 @@ En regardant les genres de toutes les musiques du dataset, on voit que le genre 
 ⚠️ Il est à noter que la classification du genre des musiques dans le dataset peut parfois être hasardeuse.
 
 
+<hr style="border: 1px solid;">
 
-
-
-> Quelle est la durée moyenne des chansons par artiste ? Est-ce qu'il y a des artistes qui ont des chansons plus longues ou plus courtes que la moyenne ?
+##### **Quelle est la durée moyenne des chansons par artiste ? Est-ce qu'il y a des artistes qui ont des chansons plus longues ou plus courtes que la moyenne ?**
 
 L'idée à travers ces différentes interrogations est de pouvoir situer les artistes en fonction de la durée moyenne de leurs chansons. Pour cela, nous allons dans un premier temps voir la ***distribution*** de la durée moyenne de chansons à l'aide d'un ***histogramme***, et ensuite faire la ***comparaison*** entre ces artistes. Avant cela, il est important de noter que :
 
@@ -440,7 +475,9 @@ longest_songs
 
 Avec ces constats, on est en droit de se demander si la durée des chansons a un réel impact sur leur popularité.
 
-> Les chansons plus longues ont-elles une popularité différente ?
+<hr style="border: 1px solid;">
+
+##### **Les chansons plus longues ont-elles une popularité différente ?**
 
 En tant que mélomane, on a tendance à croire que les chansons les plus longues sont moins populaires en raison de la tendance actuelle des artistes pour les musiques de courte durée. Afin d'affirmer ou d'infirmer cette théorie, nous allons à l'aide d'un ***Scatter Plot***, étudier la ***relation*** entre la durée et la popularité des différents songs du dataset.
 
@@ -471,9 +508,9 @@ coeff
 
 Le résultat négatif traduit une corrélation négative, c'est-à-dire que les deux variables évoluent en direction opposée, ce qui conforte nos soupçons sur l'impopularité des longues chansons. Cette relation demeure très faible et nous pensons que la taille de notre jeu de données ne nous permet pas de s'assurer aisément de cette relation.
 
+<hr style="border: 1px solid;">
 
-
-> Quel genre de musique est le plus populaire sur Spotify/Youtube ?
+##### **Quel genre de musique est le plus populaire sur Spotify/Youtube ?**
 
 Dans le graphique ci-dessous, nous pouvons voir le classement des genres de musiques par rapport au nombre moyen de stream (sur spotify et youtube) que fait une musique de ce genre, ce qui donne donc un classement de popularité. On choisi cette méthode de *"nombre moyen de stream que fait une musique"* pour catégoriser la popularité des genres car nous ne pouvons pas simplement afficher un nombre total de Stream pour chaque genre sachant qu'il n'y a pas un nombre égal de musique par genre. Il faut diviser le nombre total de stream par genre par le nombre de musique de ce genre, ce qui donne un nombre moyen de stream pour chaque genre.
 
@@ -561,9 +598,9 @@ Pour le genre Latin(o), les musiques font généralement moins de streams que l'
 
 ⚠️ Il est à noter cette étude est basée sur les musiques présente dans le dataset et pas sur toute les musiques existantes.
 
+<hr style="border: 1px solid;">
 
-
-> Est ce que l'energie d'une musique joue un rôle important dans sa popularité ?
+##### **Est ce que l'energie d'une musique joue un rôle important dans sa popularité ?**
 
 C'est une question légitime, existe t'il une corrélation entre l'energie d'une musique ainsi que sa popularité (total du nombre de streams sur les 2 plateformes). 
 Nous analysons cette question avec 2 graphiques utilisant les mêmes données. Le 1er graphique est un scatter plot avec une moyenne mobile du nombre de streams. Le 2nd est le même graphique sans le nuage de points pour mieux analyser la moyenne mobile qui semble constante sur le 1er.
@@ -604,7 +641,9 @@ On remarque que l'EDM explose aux alentours de 0.3 d'energy, cela est dû à 2 o
 
 La variation positive évoquée sur le graphique précédent entre 0.25 et 0.75 peut cependant être confirmée sauf pour le rap et R&B. Cela peut être compréhensible, une personne écoutant du rap et du R&B aura des attentes plutôt basées sur les paroles de la musique qu'une forte energy (qui on le rappelle est calculée subjectivement par Spotify mais qui comprend notamment le tempo d'une musique ainsi que les instruements utilisées).
 
-> Quelle est la répartition des caractéristiques musicales (tempo, danceability, etc.) dans les chansons les plus populaires ?
+<hr style="border: 1px solid;">
+
+##### **Quelle est la répartition des caractéristiques musicales (tempo, danceability, etc.) dans les chansons les plus populaires ?**
 
 ```{r}
 top_musiques <- data[order(data$total_streams, decreasing = TRUE), ][1:5, ]
@@ -642,9 +681,11 @@ legend("topright", legend = top_musiques$Track, col = colors, lty = 1, lwd = 2, 
 
 Cette question est surtout traitée par curiosité, les données du radar chart sont analysées entre elle avec les extrêmes calculés sur les plus hautes et basses valeur de ces 5 musiques. 
 
-> Quelles années ont connu le plus de streams ?
+<hr style="border: 1px solid;">
+*
+##### **Quelles années ont connu le plus de streams ?**
 
-> Quelle est l'évolution de la répartition des genres de musique au fil des années ?
+##### **Quelle est l'évolution de la répartition des genres de musique au fil des années ?**
 
 Dans le graphique ci-dessous, on voit les streams totaux des musiques sorties sur la même année, selon leur genre. On s'intéresse seulement à la période 2000 2019 (le dataset ne comprenant qu'un faible échantillon de musiques en 2020).
 
@@ -700,10 +741,15 @@ Globalement, on peut voir que les années 2010 ont connu une explosion des plate
 
 Par rapport aux genres, on voit que les musiques Rock ont connu un pic de streams dans les années 2000, avant de chuter drastiquement. Au contraire, dans la fin des années 2010, le genre Rap prend de plus en plus d'importance dans le monde de la musique. Le genre Latino a connu une très grosse évolution en 2017 et 2018, avec la sortie, entre autres, de **Despacito** de Luis Fonsi et Daddy Yankee ou **MIA** de Bad Bunny et Drake.
 
-> Est-ce que les musiques qui ont le plus de "Views" sur Youtube sont également celle qui ont le plus de "Stream" sur Spotify ? Dans la même idée, est-ce que les musiques qui ont le plus de "Views" sont également celle qui ont le plus de "Likes" et de "Comments" ?
+<hr style="border: 1px solid;">
+
+
+##### **Est-ce que les musiques qui ont le plus de "Views" sur Youtube sont également celle qui ont le plus de "Stream" sur Spotify ? **
+
+##### **Dans la même idée, est-ce que les musiques qui ont le plus de "Views" sont également celle qui ont le plus de "Likes" et de "Comments" ?**
 
 Pour cette question, le graphique dynamique est disponible dans l'application **Shiny** dédiée, dans l'onglet **Top 40 Musiques**. Vous pouvez sélectionner la variable afin d'afficher le graphique. Nous ferons cette analyse pour un top 15 des musiques, mais dans l'application vous pouvez également aller jusqu'au top 40 grâce au curseur.
-
+(Vous pourrez également profiter d'une image exclusive de Taylor Swift lors d'un de ses concert 2024 en France ! )
 
 ![ScreenShot Shiny Views et Streams](image/shiny_view_stream.png)
 
@@ -746,10 +792,17 @@ ggpairs(data_selected,
 
 Dans ce graphique de croisements deux à deux avec la matrice de corrélation, on confirme grâce aux coéffients, que nous avons une **correlation forte** entre les trois variables : Views, Likes et Comments. 
 
-> Est-ce qu'il existe des liens de corrélation entre certaines variables : danceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness, valence, tempo, total_streams ?
-Et, existe-t-il des liens entre certaines variables et le nombre de streams total ?
+<hr style="border: 1px solid;">
+
+##### **Est-ce qu'il existe des liens de corrélation entre certaines variables : danceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness, valence, tempo, total_streams ?**
+
+##### **Existe-t-il des liens entre certaines variables et le nombre de streams total ?**
 
 De même pour cette question, le graphique dynamique est disponible dans l'application **Shiny** dédiée, dans l'onglet **Matrice de corrélation**. Cette matrice est clicable, c'est à dire que que si vous cliquez sur la case rouge entre energy et loudness, vous aurez le graphique correspondant à droite et le coeficient de corrélation en dessous.
 
 ![ScreenShot correlation energy loudness](image/correlation1.png)
+
+
 La matrice de correlation nous indique qu'il y a une **correlation forte** (0,67) entre l'energie et le volume sonore (loudness), et entre l'energie et l'accoustique (0,53). Mais  également une **corrélation moyenne** entre l'accoustique et le volume sonore (0,38). Les autres corrélation sont plus faibles, et contrairement à nos suppositions, il n'y a pas de correlation notable entre le nombre total de streams (Youtube + Spotify) et certaines variables.
+
+</div>
