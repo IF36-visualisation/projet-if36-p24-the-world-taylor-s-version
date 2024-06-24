@@ -20,13 +20,11 @@ knitr::opts_chunk$set(
 <hr style="border: 1px solid;">
 <div align="justify">
 
-## Introduction ✨ {#introduction}
+## Introduction & Données 💡 {#introduction}
 L'équipe de projet `The World (Taylor's Version)` est composée de quatres personnes : Marielle CHARON, Kevin HERNANDEZ, Anouchka NEVEU et Amadou ISSAKA AMADOU. Le but de ce projet est de répondre à plusieurs questions sur le thème de la musique et plus précisement sur les platformes Spotify et Youtube grace à la visualisation de données. Le projet sera développé sous R.
 
-<hr style="border: 1px solid;">
 
 
-## Données 💡
 Le dataset utilisé (`Datasetfinal.csv`) est un merge de deux datasets : [Spotify and Youtube](https://www.kaggle.com/datasets/salvatorerastelli/spotify-and-youtube) et [Spotify songs](https://www.kaggle.com/datasets/sujaykapadnis/spotify-songs). Le merge final pèse 6.55 MB et est sous format CSV. Il contient 3668 éléments. La clé qui a servi au merge est l'ID de la musique sur Spotify.
 
 Les deux jeux de données contiennent des données datant de **2023** collectées depuis les API officielles de YouTube et Spotify. On a, notamment, les 10 musiques les plus populaires d'une variété d'artistes.
